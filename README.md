@@ -1,6 +1,6 @@
 # 📈 7H Stock Analyzer
 
-![7H Stock Analyzer](readme.png)
+![7H Stock Analyzer](doc/readme.png)
 
 A Python application that provides AI-powered stock recommendations based on technical analysis parameters. The system analyzes multiple technical indicators including RSI, MACD, Moving Averages, Bollinger Bands, and more to generate buy/sell/hold recommendations.
 
@@ -132,7 +132,8 @@ The recommendation engine uses a scoring system:
 │   │   └── style.css
 │   └── js/
 │       └── main.js
-├── readme.png          # Branding image
+├── doc/
+│   └── readme.png      # Branding image
 └── README.md           # This file
 ```
 
