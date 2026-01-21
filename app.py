@@ -5,6 +5,7 @@ Flask Web Application for Stock Technical Analysis
 
 from flask import Flask, render_template, request, jsonify
 from core.stock_analyzer import StockAnalyzer
+from core.batch_stock_analyzer import BatchStockAnalyzer
 from core.portfolio_forklift import PortfolioForklift
 from core.portfolio_storage import PortfolioStorage
 import json
@@ -161,11 +162,11 @@ def analyze_stock():
 
 @app.route('/analyze_portfolio', methods=['POST'])
 def analyze_portfolio():
-    """Analyze multiple stocks for portfolio recommendations"""
+    """Analyze multiple stocks for portfolio recommendations using batch processing"""
     try:
         data = request.get_json()
         symbols_str = data.get('symbols', '')
-        period = data.get('period', '1y')
+        period = data.get('period', '6mo')  # Changed default to 6mo for more accurate data
         top_n = int(data.get('top_n', 10))
         
         if not symbols_str:
@@ -177,18 +178,21 @@ def analyze_portfolio():
         if not symbols:
             return jsonify({'error': 'No valid stock symbols provided'}), 400
         
+        # Use batch analyzer for efficient processing
+        batch_analyzer = BatchStockAnalyzer(symbols, period, batch_size=30)
+        analysis_results = batch_analyzer.analyze_all()
+        
         results = []
         failed_symbols = []
         
         for symbol in symbols:
-            try:
-                analyzer = StockAnalyzer(symbol, period)
-                
-                if analyzer.fetch_data():
-                    analyzer.calculate_indicators()
-                    summary = analyzer.get_summary()
-                    recommendation = analyzer.get_recommendation()
-                    
+            if symbol in analysis_results:
+                result = analysis_results[symbol]
+                if 'error' in result:
+                    failed_symbols.append(f"{symbol} ({result['error']})")
+                else:
+                    summary = result['summary']
+                    recommendation = result['recommendation']
                     fundamental = summary.get('fundamental', {})
                     
                     results.append({
@@ -215,13 +219,19 @@ def analyze_portfolio():
                         'reasoning': recommendation['reasoning'],
                         'fundamental': convert_bools_to_strings(fundamental)
                     })
-                else:
-                    failed_symbols.append(symbol)
-            except Exception as e:
-                failed_symbols.append(f"{symbol} ({str(e)})")
+            else:
+                failed_symbols.append(symbol)
         
         if not results:
-            return jsonify({'error': 'No stocks were successfully analyzed'}), 404
+            # Check if all symbols failed due to authentication/API issues
+            if len(failed_symbols) == len(symbols):
+                return jsonify({
+                    'error': 'Unable to fetch stock data. This may be due to Yahoo Finance API issues or network problems. Please try again in a few minutes.',
+                    'failed_symbols': failed_symbols,
+                    'suggestion': 'Check your internet connection and try refreshing the page. If the issue persists, some symbols may be temporarily unavailable.'
+                }), 503  # Service Unavailable
+            else:
+                return jsonify({'error': 'No stocks were successfully analyzed'}), 404
         
         # Sort by score
         results_sorted = sorted(results, key=lambda x: x['score'], reverse=True)
@@ -268,24 +278,27 @@ MAJOR_ETFS = load_stocks_from_config(CONFIG_ETFS_FILE)
 
 @app.route('/analyze_market', methods=['POST'])
 def analyze_market():
-    """Analyze US market stocks and return top BUY recommendations"""
+    """Analyze US market stocks using batch processing and return top BUY recommendations"""
     try:
         data = request.get_json()
         period = data.get('period', '1y')
         top_n = int(data.get('top_n', 10))
         
+        # Use batch analyzer for efficient processing
+        batch_analyzer = BatchStockAnalyzer(MAJOR_US_STOCKS, period, batch_size=40)
+        analysis_results = batch_analyzer.analyze_all()
+        
         results = []
         failed_symbols = []
         
-        # Analyze major US stocks
         for symbol in MAJOR_US_STOCKS:
-            try:
-                analyzer = StockAnalyzer(symbol, period)
-                
-                if analyzer.fetch_data():
-                    analyzer.calculate_indicators()
-                    summary = analyzer.get_summary()
-                    recommendation = analyzer.get_recommendation()
+            if symbol in analysis_results:
+                result = analysis_results[symbol]
+                if 'error' in result:
+                    failed_symbols.append(f"{symbol} ({result['error']})")
+                else:
+                    summary = result['summary']
+                    recommendation = result['recommendation']
                     
                     # Only include BUY recommendations
                     if 'BUY' in recommendation['recommendation']:
@@ -311,11 +324,19 @@ def analyze_market():
                             'reasoning': recommendation['reasoning'],
                             'fundamental': convert_bools_to_strings(fundamental)
                         })
-            except Exception as e:
-                failed_symbols.append(f"{symbol} ({str(e)})")
+            else:
+                failed_symbols.append(symbol)
         
         if not results:
-            return jsonify({'error': 'No BUY recommendations found in US market'}), 404
+            # Check if this is likely an API issue
+            if len(failed_symbols) >= len(MAJOR_US_STOCKS) * 0.8:  # If 80% or more failed
+                return jsonify({
+                    'error': 'Unable to fetch market data. This may be due to Yahoo Finance API issues or network problems. Please try again in a few minutes.',
+                    'failed_symbols': failed_symbols,
+                    'suggestion': 'Market data temporarily unavailable. Check your internet connection and try refreshing the page.'
+                }), 503
+            else:
+                return jsonify({'error': 'No BUY recommendations found in US market'}), 404
         
         # Sort by score (highest first) and take top N
         results_sorted = sorted(results, key=lambda x: x['score'], reverse=True)[:top_n]
@@ -489,24 +510,27 @@ def update_portfolio_config():
 
 @app.route('/analyze_etf', methods=['POST'])
 def analyze_etf():
-    """Analyze ETFs/Indexes and return top BUY recommendations"""
+    """Analyze ETFs/Indexes using batch processing and return top BUY recommendations"""
     try:
         data = request.get_json()
         period = data.get('period', '1y')
         top_n = int(data.get('top_n', 10))
         
+        # Use batch analyzer for efficient processing
+        batch_analyzer = BatchStockAnalyzer(MAJOR_ETFS, period, batch_size=30)
+        analysis_results = batch_analyzer.analyze_all()
+        
         results = []
         failed_symbols = []
         
-        # Analyze major ETFs
         for symbol in MAJOR_ETFS:
-            try:
-                analyzer = StockAnalyzer(symbol, period)
-                
-                if analyzer.fetch_data():
-                    analyzer.calculate_indicators()
-                    summary = analyzer.get_summary()
-                    recommendation = analyzer.get_recommendation()
+            if symbol in analysis_results:
+                result = analysis_results[symbol]
+                if 'error' in result:
+                    failed_symbols.append(f"{symbol} ({result['error']})")
+                else:
+                    summary = result['summary']
+                    recommendation = result['recommendation']
                     
                     # Only include BUY recommendations
                     if 'BUY' in recommendation['recommendation']:
@@ -532,11 +556,19 @@ def analyze_etf():
                             'reasoning': recommendation['reasoning'],
                             'fundamental': convert_bools_to_strings(fundamental)
                         })
-            except Exception as e:
-                failed_symbols.append(f"{symbol} ({str(e)})")
+            else:
+                failed_symbols.append(symbol)
         
         if not results:
-            return jsonify({'error': 'No BUY recommendations found in ETFs'}), 404
+            # Check if this is likely an API issue
+            if len(failed_symbols) >= len(MAJOR_ETFS) * 0.8:  # If 80% or more failed
+                return jsonify({
+                    'error': 'Unable to fetch ETF data. This may be due to Yahoo Finance API issues or network problems. Please try again in a few minutes.',
+                    'failed_symbols': failed_symbols,
+                    'suggestion': 'ETF data temporarily unavailable. Check your internet connection and try refreshing the page.'
+                }), 503
+            else:
+                return jsonify({'error': 'No BUY recommendations found in ETFs'}), 404
         
         # Sort by score (highest first) and take top N
         results_sorted = sorted(results, key=lambda x: x['score'], reverse=True)[:top_n]
