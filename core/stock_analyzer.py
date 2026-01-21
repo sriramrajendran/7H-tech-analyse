@@ -186,6 +186,12 @@ class StockAnalyzer:
         else:
             self.indicators['Price_Change_1y_Pct'] = 0
         
+        # Advanced Pattern Analysis
+        self.indicators['VCP_Pattern'] = self.detect_vcp_pattern()
+        self.indicators['RSI_Divergence'] = self.detect_rsi_divergence()
+        self.indicators['MACD_Divergence'] = self.detect_macd_divergence()
+        self.indicators['Enhanced_Crossovers'] = self.detect_enhanced_crossovers()
+        
         # Store full dataframes for analysis
         self.data = df
     
@@ -426,6 +432,52 @@ class StockAnalyzer:
                 score -= 1
                 reasons.append("Stochastic indicates overbought")
         
+        # Advanced Pattern Analysis
+        vcp_pattern = self.indicators.get('VCP_Pattern', {})
+        rsi_divergence = self.indicators.get('RSI_Divergence', {})
+        macd_divergence = self.indicators.get('MACD_Divergence', {})
+        enhanced_crossovers = self.indicators.get('Enhanced_Crossovers', {})
+        
+        # VCP Pattern Analysis
+        if vcp_pattern.get('pattern') == 'STRONG_VCP':
+            score += 3
+            reasons.append("Strong Volatility Contraction Pattern detected - potential breakout")
+        elif vcp_pattern.get('pattern') == 'WEAK_VCP':
+            score += 1
+            reasons.append("Weak Volatility Contraction Pattern detected")
+        
+        # RSI Divergence Analysis
+        if rsi_divergence.get('divergence') == 'BULLISH':
+            score += 2
+            reasons.append("Bullish RSI divergence detected - potential upward reversal")
+        elif rsi_divergence.get('divergence') == 'BEARISH':
+            score -= 2
+            reasons.append("Bearish RSI divergence detected - potential downward reversal")
+        
+        # MACD Divergence Analysis
+        if macd_divergence.get('divergence') == 'BULLISH':
+            score += 2
+            reasons.append("Bullish MACD divergence detected - momentum shift upward")
+        elif macd_divergence.get('divergence') == 'BEARISH':
+            score -= 2
+            reasons.append("Bearish MACD divergence detected - momentum shift downward")
+        
+        # Enhanced Crossover Analysis
+        volume_confirmed = enhanced_crossovers.get('volume_confirmed', [])
+        crossover_strength = enhanced_crossovers.get('strength', 0)
+        
+        if volume_confirmed:
+            bullish_volume_confirmed = [c for c in volume_confirmed if 'BULLISH' in c]
+            bearish_volume_confirmed = [c for c in volume_confirmed if 'BEARISH' in c]
+            
+            if bullish_volume_confirmed:
+                score += len(bullish_volume_confirmed)
+                reasons.append(f"Volume-confirmed bullish crossovers: {', '.join(bullish_volume_confirmed)}")
+            
+            if bearish_volume_confirmed:
+                score -= len(bearish_volume_confirmed)
+                reasons.append(f"Volume-confirmed bearish crossovers: {', '.join(bearish_volume_confirmed)}")
+        
         # Price momentum
         price_change = self.indicators['Price_Change_Pct']
         if price_change > 2:
@@ -480,10 +532,290 @@ class StockAnalyzer:
             'sma_200': round(self.indicators['SMA_200'], 2) if self.indicators['SMA_200'] is not None else 0,
             'bb_upper': round(self.indicators['BB_Upper'], 2) if self.indicators['BB_Upper'] is not None else 0,
             'bb_lower': round(self.indicators['BB_Lower'], 2) if self.indicators['BB_Lower'] is not None else 0,
+            # Advanced pattern analysis
+            'vcp_pattern': self.indicators.get('VCP_Pattern', {}),
+            'rsi_divergence': self.indicators.get('RSI_Divergence', {}),
+            'macd_divergence': self.indicators.get('MACD_Divergence', {}),
+            'enhanced_crossovers': self.indicators.get('Enhanced_Crossovers', {}),
         }
         
         # Add fundamental indicators
         summary['fundamental'] = fundamental
         
         return summary
+    
+    def detect_vcp_pattern(self) -> Dict:
+        """
+        Detect Volatility Contraction Pattern (VCP)
+        VCP indicates potential breakout after volatility contraction
+        """
+        if self.data is None or len(self.data) < 50:
+            return {'pattern': 'INSUFFICIENT_DATA', 'strength': 0, 'details': []}
+        
+        df = self.data.copy()
+        details = []
+        pattern_strength = 0
+        
+        # Calculate price ranges over different windows
+        df['high_20'] = df['High'].rolling(20).max()
+        df['low_20'] = df['Low'].rolling(20).min()
+        df['range_20'] = (df['high_20'] - df['low_20']) / df['Close']
+        
+        df['high_10'] = df['High'].rolling(10).max()
+        df['low_10'] = df['Low'].rolling(10).min()
+        df['range_10'] = (df['high_10'] - df['low_10']) / df['Close']
+        
+        # Check for volatility contraction over recent periods
+        recent_ranges = df['range_20'].dropna().tail(10)
+        if len(recent_ranges) >= 5:
+            range_trend = np.polyfit(range(len(recent_ranges)), recent_ranges.values, 1)[0]
+            if range_trend < -0.001:  # Negative trend indicates contraction
+                pattern_strength += 2
+                details.append("Volatility contracting over recent periods")
+        
+        # Check for price tightening near highs
+        recent_highs = df['high_20'].dropna().tail(20)
+        recent_closes = df['Close'].tail(20)
+        
+        if len(recent_highs) >= 10 and len(recent_closes) >= 10:
+            avg_high = recent_highs.mean()
+            avg_close = recent_closes.mean()
+            
+            if avg_close >= avg_high * 0.95:  # Price within 5% of recent highs
+                pattern_strength += 2
+                details.append("Price tightening near recent highs")
+        
+        # Check for decreasing volume during consolidation
+        if len(df) >= 20:
+            recent_volume = df['Volume'].tail(10)
+            earlier_volume = df['Volume'].tail(20).head(10)
+            
+            if recent_volume.mean() < earlier_volume.mean() * 0.8:
+                pattern_strength += 1
+                details.append("Decreasing volume during consolidation")
+        
+        # Determine pattern type
+        if pattern_strength >= 4:
+            pattern_type = 'STRONG_VCP'
+        elif pattern_strength >= 2:
+            pattern_type = 'WEAK_VCP'
+        else:
+            pattern_type = 'NO_VCP'
+        
+        return {
+            'pattern': pattern_type,
+            'strength': pattern_strength,
+            'details': details
+        }
+    
+    def detect_rsi_divergence(self) -> Dict:
+        """
+        Detect RSI divergence (bullish and bearish)
+        """
+        if self.data is None or len(self.data) < 30:
+            return {'divergence': 'INSUFFICIENT_DATA', 'type': None, 'strength': 0}
+        
+        df = self.data.copy()
+        
+        # Calculate RSI if not already done
+        rsi = RSIIndicator(close=df['Close'], window=14)
+        df['RSI'] = rsi.rsi()
+        
+        # Look for divergence over last 20-30 periods
+        lookback = min(30, len(df) - 1)
+        recent_data = df.tail(lookback + 1)
+        
+        if len(recent_data) < 10:
+            return {'divergence': 'INSUFFICIENT_DATA', 'type': None, 'strength': 0}
+        
+        # Find price highs and lows
+        price_highs = []
+        price_lows = []
+        rsi_highs = []
+        rsi_lows = []
+        
+        for i in range(2, len(recent_data)):
+            # Price highs
+            if (recent_data.iloc[i]['High'] > recent_data.iloc[i-1]['High'] and 
+                recent_data.iloc[i]['High'] > recent_data.iloc[i-2]['High']):
+                price_highs.append((i, recent_data.iloc[i]['High']))
+                rsi_highs.append((i, recent_data.iloc[i]['RSI']))
+            
+            # Price lows
+            if (recent_data.iloc[i]['Low'] < recent_data.iloc[i-1]['Low'] and 
+                recent_data.iloc[i]['Low'] < recent_data.iloc[i-2]['Low']):
+                price_lows.append((i, recent_data.iloc[i]['Low']))
+                rsi_lows.append((i, recent_data.iloc[i]['RSI']))
+        
+        divergence_type = None
+        strength = 0
+        
+        # Check for bearish divergence (higher price highs + lower RSI highs)
+        if len(price_highs) >= 2 and len(rsi_highs) >= 2:
+            price_trend = price_highs[-1][1] - price_highs[-2][1]
+            rsi_trend = rsi_highs[-1][1] - rsi_highs[-2][1]
+            
+            if price_trend > 0 and rsi_trend < 0:
+                divergence_type = 'BEARISH'
+                strength = min(abs(rsi_trend) * 10, 5)
+        
+        # Check for bullish divergence (lower price lows + higher RSI lows)
+        if len(price_lows) >= 2 and len(rsi_lows) >= 2:
+            price_trend = price_lows[-1][1] - price_lows[-2][1]
+            rsi_trend = rsi_lows[-1][1] - rsi_lows[-2][1]
+            
+            if price_trend < 0 and rsi_trend > 0:
+                divergence_type = 'BULLISH'
+                strength = min(abs(rsi_trend) * 10, 5)
+        
+        return {
+            'divergence': divergence_type if divergence_type else 'NONE',
+            'type': divergence_type,
+            'strength': strength
+        }
+    
+    def detect_macd_divergence(self) -> Dict:
+        """
+        Detect MACD divergence
+        """
+        if self.data is None or len(self.data) < 50:
+            return {'divergence': 'INSUFFICIENT_DATA', 'type': None, 'strength': 0}
+        
+        df = self.data.copy()
+        
+        # Calculate MACD if not already done
+        macd = MACD(close=df['Close'])
+        df['MACD'] = macd.macd()
+        
+        # Look for divergence over last 30-40 periods
+        lookback = min(40, len(df) - 1)
+        recent_data = df.tail(lookback + 1)
+        
+        if len(recent_data) < 15:
+            return {'divergence': 'INSUFFICIENT_DATA', 'type': None, 'strength': 0}
+        
+        # Find price highs and corresponding MACD highs
+        price_highs = []
+        price_lows = []
+        macd_highs = []
+        macd_lows = []
+        
+        for i in range(3, len(recent_data)):
+            # Price highs
+            if (recent_data.iloc[i]['High'] > recent_data.iloc[i-1]['High'] and 
+                recent_data.iloc[i]['High'] > recent_data.iloc[i-2]['High'] and
+                recent_data.iloc[i]['High'] > recent_data.iloc[i-3]['High']):
+                price_highs.append((i, recent_data.iloc[i]['High']))
+                macd_highs.append((i, recent_data.iloc[i]['MACD']))
+            
+            # Price lows
+            if (recent_data.iloc[i]['Low'] < recent_data.iloc[i-1]['Low'] and 
+                recent_data.iloc[i]['Low'] < recent_data.iloc[i-2]['Low'] and
+                recent_data.iloc[i]['Low'] < recent_data.iloc[i-3]['Low']):
+                price_lows.append((i, recent_data.iloc[i]['Low']))
+                macd_lows.append((i, recent_data.iloc[i]['MACD']))
+        
+        divergence_type = None
+        strength = 0
+        
+        # Check for bearish divergence
+        if len(price_highs) >= 2 and len(macd_highs) >= 2:
+            price_trend = price_highs[-1][1] - price_highs[-2][1]
+            macd_trend = macd_highs[-1][1] - macd_highs[-2][1]
+            
+            if price_trend > 0 and macd_trend < 0:
+                divergence_type = 'BEARISH'
+                strength = min(abs(macd_trend) * 100, 5)
+        
+        # Check for bullish divergence
+        if len(price_lows) >= 2 and len(macd_lows) >= 2:
+            price_trend = price_lows[-1][1] - price_lows[-2][1]
+            macd_trend = macd_lows[-1][1] - macd_lows[-2][1]
+            
+            if price_trend < 0 and macd_trend > 0:
+                divergence_type = 'BULLISH'
+                strength = min(abs(macd_trend) * 100, 5)
+        
+        return {
+            'divergence': divergence_type if divergence_type else 'NONE',
+            'type': divergence_type,
+            'strength': strength
+        }
+    
+    def detect_enhanced_crossovers(self) -> Dict:
+        """
+        Enhanced crossover detection with volume confirmation
+        """
+        if self.data is None or len(self.data) < 50:
+            return {'crossovers': [], 'volume_confirmed': [], 'strength': 0}
+        
+        df = self.data.copy()
+        crossovers = []
+        volume_confirmed = []
+        
+        # Calculate moving averages
+        sma_10 = SMAIndicator(close=df['Close'], window=10)
+        sma_20 = SMAIndicator(close=df['Close'], window=20)
+        sma_40 = SMAIndicator(close=df['Close'], window=40)
+        
+        df['SMA_10'] = sma_10.sma_indicator()
+        df['SMA_20'] = sma_20.sma_indicator()
+        df['SMA_40'] = sma_40.sma_indicator()
+        
+        # Calculate average volume
+        df['Volume_MA'] = df['Volume'].rolling(20).mean()
+        
+        # Look for crossovers in last 20 periods
+        lookback = min(20, len(df) - 1)
+        recent_data = df.tail(lookback + 1).dropna()
+        
+        if len(recent_data) < 5:
+            return {'crossovers': [], 'volume_confirmed': [], 'strength': 0}
+        
+        for i in range(1, len(recent_data)):
+            prev = recent_data.iloc[i-1]
+            curr = recent_data.iloc[i]
+            
+            # 10/20 SMA crossover
+            if (prev['SMA_10'] <= prev['SMA_20'] and curr['SMA_10'] > curr['SMA_20']):
+                crossover_type = 'BULLISH_10_20'
+                volume_confirm = curr['Volume'] > curr['Volume_MA'] * 1.2
+                
+                crossovers.append(crossover_type)
+                if volume_confirm:
+                    volume_confirmed.append(crossover_type)
+            
+            elif (prev['SMA_10'] >= prev['SMA_20'] and curr['SMA_10'] < curr['SMA_20']):
+                crossover_type = 'BEARISH_10_20'
+                volume_confirm = curr['Volume'] > curr['Volume_MA'] * 1.2
+                
+                crossovers.append(crossover_type)
+                if volume_confirm:
+                    volume_confirmed.append(crossover_type)
+            
+            # 20/40 SMA crossover
+            if (prev['SMA_20'] <= prev['SMA_40'] and curr['SMA_20'] > curr['SMA_40']):
+                crossover_type = 'BULLISH_20_40'
+                volume_confirm = curr['Volume'] > curr['Volume_MA'] * 1.2
+                
+                crossovers.append(crossover_type)
+                if volume_confirm:
+                    volume_confirmed.append(crossover_type)
+            
+            elif (prev['SMA_20'] >= prev['SMA_40'] and curr['SMA_20'] < curr['SMA_40']):
+                crossover_type = 'BEARISH_20_40'
+                volume_confirm = curr['Volume'] > curr['Volume_MA'] * 1.2
+                
+                crossovers.append(crossover_type)
+                if volume_confirm:
+                    volume_confirmed.append(crossover_type)
+        
+        # Calculate strength based on volume confirmation
+        strength = len(volume_confirmed) * 2 if volume_confirmed else 0
+        
+        return {
+            'crossovers': crossovers[-5:],  # Last 5 crossovers
+            'volume_confirmed': volume_confirmed[-5:],
+            'strength': strength
+        }
 

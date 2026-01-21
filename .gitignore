@@ -142,3 +142,8 @@ Thumbs.db
 # Project specific
 *.db
 *.sqlite
+
+# Portfolio data (user-specific, should not be committed)
+input/portfolio_data.json
+input/imported_portfolio.csv
+temp/

@@ -4,18 +4,20 @@ Flask Web Application for Stock Technical Analysis
 """
 
 from flask import Flask, render_template, request, jsonify
-from stock_analyzer import StockAnalyzer
+from core.stock_analyzer import StockAnalyzer
+from core.portfolio_forklift import PortfolioForklift
+from core.portfolio_storage import PortfolioStorage
 import json
 import os
 from typing import List, Dict
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='assets', static_folder='assets')
 app.config['JSON_SORT_KEYS'] = False
 
-CONFIG_PORTFOLIO_FILE = 'config_portfolio.txt'
-CONFIG_WATCHLIST_FILE = 'config_watchlist.txt'
-CONFIG_US_STOCKS_FILE = 'config_us_stocks.txt'
-CONFIG_ETFS_FILE = 'config_etfs.txt'
+CONFIG_PORTFOLIO_FILE = 'input/config_portfolio.txt'
+CONFIG_WATCHLIST_FILE = 'input/config_watchlist.txt'
+CONFIG_US_STOCKS_FILE = 'input/config_us_stocks.txt'
+CONFIG_ETFS_FILE = 'input/config_etfs.txt'
 
 
 def load_stocks_from_config(filename: str) -> List[str]:
@@ -162,6 +164,10 @@ def analyze_portfolio():
                         'macd': round(summary.get('macd', 0), 2),
                         'sma_20': round(summary.get('sma_20', 0), 2),
                         'sma_50': round(summary.get('sma_50', 0), 2),
+                        'vcp_pattern': summary.get('vcp_pattern', {}),
+                        'rsi_divergence': summary.get('rsi_divergence', {}),
+                        'macd_divergence': summary.get('macd_divergence', {}),
+                        'enhanced_crossovers': summary.get('enhanced_crossovers', {}),
                         'recommendation': recommendation['recommendation'],
                         'score': recommendation['score'],
                         'reasoning': recommendation['reasoning'],
@@ -253,6 +259,10 @@ def analyze_market():
                             'change_6m': round(summary.get('price_change_6m_pct', 0), 2),
                             'change_1y': round(summary.get('price_change_1y_pct', 0), 2),
                             'rsi': round(summary.get('rsi', 0), 2),
+                            'vcp_pattern': summary.get('vcp_pattern', {}),
+                            'rsi_divergence': summary.get('rsi_divergence', {}),
+                            'macd_divergence': summary.get('macd_divergence', {}),
+                            'enhanced_crossovers': summary.get('enhanced_crossovers', {}),
                             'recommendation': recommendation['recommendation'],
                             'score': recommendation['score'],
                             'reasoning': recommendation['reasoning'],
@@ -274,6 +284,160 @@ def analyze_market():
             'failed_symbols': failed_symbols
         })
     
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/import_portfolio')
+def import_portfolio_page():
+    """Portfolio import page"""
+    return render_template('index.html', page_type='import_portfolio')
+
+
+@app.route('/api/import_portfolio', methods=['POST'])
+def import_portfolio_api():
+    """Import portfolio from uploaded file"""
+    try:
+        if 'file' not in request.files:
+            return jsonify({'error': 'No file uploaded'}), 400
+        
+        file = request.files['file']
+        if file.filename == '':
+            return jsonify({'error': 'No file selected'}), 400
+        
+        if not file.filename.endswith('.csv'):
+            return jsonify({'error': 'Only CSV files are supported'}), 400
+        
+        # Save uploaded file temporarily
+        temp_path = os.path.join('temp', file.filename)
+        os.makedirs('temp', exist_ok=True)
+        file.save(temp_path)
+        
+        # Get broker type from form or auto-detect
+        broker = request.form.get('broker', 'auto')
+        save_to_storage = request.form.get('save_to_storage', 'true') == 'true'
+        save_to_config = request.form.get('save_to_config', 'false') == 'true'
+        
+        # Initialize forklift and import
+        forklift = PortfolioForklift()
+        storage = PortfolioStorage()
+        
+        if broker == 'auto':
+            result = forklift.import_portfolio(temp_path)
+        else:
+            result = forklift.import_portfolio(temp_path, broker=broker)
+        
+        # Clean up temp file
+        try:
+            os.remove(temp_path)
+        except:
+            pass
+        
+        if result['success']:
+            # Save to persistent storage if requested
+            if save_to_storage and 'validated_portfolio' in result:
+                storage_result = storage.save_portfolio_data(
+                    result['validated_portfolio'], 
+                    result['broker'], 
+                    file.filename
+                )
+                result['storage_save'] = storage_result
+            
+            # Update config file if requested
+            if save_to_config and 'validated_portfolio' in result:
+                config_result = forklift.save_portfolio_to_config(result['validated_portfolio'])
+                result['config_save'] = config_result
+            elif save_to_config and 'storage_save' in result and result['storage_save']['success']:
+                # Update config from storage
+                config_result = storage.update_portfolio_config()
+                result['config_save'] = config_result
+            
+            return jsonify(result)
+        else:
+            return jsonify(result), 400
+            
+    except Exception as e:
+        return jsonify({'error': f'Import failed: {str(e)}'}), 500
+
+
+@app.route('/api/portfolio_summary', methods=['GET'])
+def get_portfolio_summary():
+    """Get summary of current portfolio"""
+    try:
+        storage = PortfolioStorage()
+        storage_info = storage.get_storage_info()
+        
+        if not storage_info['has_data']:
+            return jsonify({'error': 'No portfolio data found'}), 404
+        
+        # Load portfolio data
+        portfolio_result = storage.load_portfolio_data()
+        if not portfolio_result['success']:
+            return jsonify({'error': portfolio_result['error']}), 500
+        
+        portfolio_data = portfolio_result['portfolio_data']
+        
+        # Create summary using forklift
+        forklift = PortfolioForklift()
+        summary = forklift.get_portfolio_summary(portfolio_data)
+        
+        # Add storage info
+        summary['storage_info'] = storage_info
+        summary['symbols'] = [h['symbol'] for h in portfolio_data]
+        
+        return jsonify({
+            'success': True,
+            'summary': summary
+        })
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/portfolio_data', methods=['GET'])
+def get_portfolio_data():
+    """Get stored portfolio data"""
+    try:
+        storage = PortfolioStorage()
+        result = storage.load_portfolio_data()
+        
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 404
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/portfolio_data', methods=['DELETE'])
+def clear_portfolio_data():
+    """Clear stored portfolio data"""
+    try:
+        storage = PortfolioStorage()
+        result = storage.clear_portfolio_data()
+        
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 500
+            
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/portfolio_config', methods=['POST'])
+def update_portfolio_config():
+    """Update portfolio config from stored data"""
+    try:
+        storage = PortfolioStorage()
+        result = storage.update_portfolio_config()
+        
+        if result['success']:
+            return jsonify(result)
+        else:
+            return jsonify(result), 500
+            
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -313,6 +477,10 @@ def analyze_etf():
                             'change_6m': round(summary.get('price_change_6m_pct', 0), 2),
                             'change_1y': round(summary.get('price_change_1y_pct', 0), 2),
                             'rsi': round(summary.get('rsi', 0), 2),
+                            'vcp_pattern': summary.get('vcp_pattern', {}),
+                            'rsi_divergence': summary.get('rsi_divergence', {}),
+                            'macd_divergence': summary.get('macd_divergence', {}),
+                            'enhanced_crossovers': summary.get('enhanced_crossovers', {}),
                             'recommendation': recommendation['recommendation'],
                             'score': recommendation['score'],
                             'reasoning': recommendation['reasoning'],

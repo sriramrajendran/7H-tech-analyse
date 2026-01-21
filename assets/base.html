@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}7H Stock Analyzer - AI-Powered Investment Insights{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
@@ -30,6 +31,10 @@
                 <a href="/etf" class="nav-link" id="nav-etf">
                     <span class="nav-icon">📈</span>
                     <span class="nav-text">ETFs/Indexes</span>
+                </a>
+                <a href="/import_portfolio" class="nav-link" id="nav-import">
+                    <span class="nav-icon">📥</span>
+                    <span class="nav-text">Import Portfolio</span>
                 </a>
             </nav>
         </aside>

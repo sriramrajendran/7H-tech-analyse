@@ -73,7 +73,7 @@ A Python application that provides AI-powered stock recommendations based on tec
 
 #### Portfolio Analysis
 
-1. Click on the **"Portfolio Analysis"** tab
+1. Click on the **"Portfolio"** tab
 2. Enter multiple stock symbols (comma or space separated):
    ```
    AAPL, MSFT, GOOGL, TSLA, NVDA, AMZN, META, NFLX
@@ -84,6 +84,80 @@ A Python application that provides AI-powered stock recommendations based on tec
    - **Top BUY Recommendations** (sorted by score)
    - **Top SELL Recommendations** (sorted by score)
    - Portfolio summary statistics
+
+#### Import Portfolio from Brokerage
+
+1. Click on the **"Import Portfolio"** tab
+2. Export your portfolio as CSV from your brokerage:
+   - **Robinhood**: Export from Account → History → Export
+   - **E-Trade**: Export from Portfolio → Positions → Export
+   - **Other brokerages**: Use generic CSV format
+3. Upload the CSV file
+4. Select brokerage or choose "Auto-detect"
+5. Check "Save symbols to portfolio configuration" to update your portfolio
+6. Click **"Import Portfolio"**
+7. View imported holdings with:
+   - Total portfolio value and P&L
+   - Individual holding details
+   - Performance metrics
+
+### 💾 Persistent Data Storage
+
+The portfolio import system now includes persistent storage to keep your data available across Flask app restarts:
+
+#### **How It Works**
+- Imported portfolio data is saved to `input/portfolio_data.json`
+- A human-readable CSV backup is created at `input/imported_portfolio.csv`
+- Data persists even when the Flask app restarts
+- Storage info includes import date, broker, and holdings count
+
+#### **Storage Options**
+- **Save portfolio data for persistence** (checked by default)
+  - Stores complete portfolio data with quantities and prices
+  - Enables portfolio summary and analysis features
+  - Survives app restarts and server reboots
+  
+- **Save symbols to portfolio configuration** (optional)
+  - Updates `input/config_portfolio.txt` with symbol list
+  - Enables technical analysis on imported symbols
+  - Compatible with existing portfolio analysis workflow
+
+#### **Storage Files**
+```
+input/
+├── portfolio_data.json       # Primary storage (JSON format)
+├── imported_portfolio.csv   # Human-readable backup
+└── config_portfolio.txt     # Symbol list for analysis
+```
+
+#### **API Endpoints for Storage**
+- `GET /api/portfolio_data` - Retrieve stored portfolio
+- `DELETE /api/portfolio_data` - Clear stored data
+- `POST /api/portfolio_config` - Update config from storage
+- `GET /api/portfolio_summary` - Portfolio summary with storage info
+
+### 📋 Supported CSV Formats
+
+#### Robinhood Format
+```csv
+symbol,quantity,average_buy_price,current_price,equity,gain_loss,gain_loss_pct
+AAPL,10,150.00,165.50,1655.00,155.00,10.33
+MSFT,5,250.00,280.75,1403.75,153.75,12.30
+```
+
+#### E-Trade Format
+```csv
+Symbol,Quantity,Price,Value,Cost Basis,Unrealized Gain/Loss
+AAPL,10,165.50,1655.00,1500.00,155.00
+MSFT,5,280.75,1403.75,1250.00,153.75
+```
+
+#### Generic CSV Format
+```csv
+Symbol,Quantity,Average Cost,Last Price
+AAPL,10,150.00,165.50
+MSFT,5,250.00,280.75
+```
 
 ### 🎨 Web App Features
 
@@ -122,16 +196,33 @@ The recommendation engine uses a scoring system:
 ```
 7H-Stock-Analyzer/
 ├── app.py               # Flask web application
-├── stock_analyzer.py    # Core analysis engine
+├── core/                # Core analysis engine
+│   ├── stock_analyzer.py
+│   ├── portfolio_forklift.py  # Portfolio import module
+│   └── portfolio_storage.py  # Persistent data storage
 ├── requirements.txt     # Python dependencies
-├── templates/           # HTML templates
-│   ├── base.html
-│   └── index.html
-├── static/              # Static files
+├── input/               # Configuration and data files
+│   ├── config_portfolio.txt
+│   ├── config_watchlist.txt
+│   ├── config_us_stocks.txt
+│   ├── config_etfs.txt
+│   ├── portfolio_data.json     # Persistent portfolio storage
+│   └── imported_portfolio.csv  # CSV backup
+├── assets/              # Combined static files and templates
 │   ├── css/
 │   │   └── style.css
-│   └── js/
-│       └── main.js
+│   ├── js/
+│   │   └── main.js
+│   ├── base.html
+│   └── index.html
+├── tests/               # Test suite
+│   ├── test_stock_analyzer.py
+│   ├── test_flask_app.py
+│   ├── test_recommendation_engine.py
+│   ├── test_integration.py
+│   └── test_portfolio_forklift.py  # Portfolio import tests
+├── temp/                # Temporary file uploads
+├── robinhood_export_guide.py    # Robinhood export instructions
 ├── doc/
 │   └── readme.png      # Branding image
 └── README.md           # This file
@@ -181,6 +272,94 @@ The recommendation engine uses a scoring system:
 - Try: `python3 app.py` (not `python app.py`)
 - Ensure Flask is installed: `pip install flask`
 - On macOS/Linux, you may need to use `sudo` to run on port 80, or change the port in `app.py` to 5000
+
+## Testing
+
+### 🧪 Run Test Suite
+```bash
+# Install all dependencies (includes testing)
+pip install -r requirements.txt
+
+# Run all tests
+pytest
+
+# Run with verbose output
+pytest -v
+
+# Run specific test categories
+pytest tests/test_stock_analyzer.py -v  # Core functionality
+pytest tests/test_flask_app.py -v       # Web application
+pytest tests/test_recommendation_engine.py -v  # Recommendation logic
+pytest tests/test_integration.py -v         # Integration tests
+```
+
+### 📋 Test Coverage
+
+#### **Core Functionality** (`test_stock_analyzer.py`)
+- ✅ StockAnalyzer initialization
+- ✅ Technical indicators calculation (RSI, MACD, SMA, EMA, Bollinger Bands)
+- ✅ Fundamental indicators fetching (P/E, market cap, dividend yield)
+- ✅ Error handling for invalid symbols
+- ✅ Edge cases and data validation
+
+#### **Web Application** (`test_flask_app.py`)
+- ✅ Page loading (Portfolio, Watchlist, Market, ETF)
+- ✅ API endpoints (`/api/config_stocks`, `/analyze_portfolio`, `/analyze_market`, `/analyze_etf`)
+- ✅ Form validation and submission
+- ✅ Error handling for malformed requests
+- ✅ Static file serving (CSS, JavaScript)
+- ✅ Invalid endpoint handling (404 errors)
+
+#### **Recommendation Engine** (`test_recommendation_engine.py`)
+- ✅ STRONG BUY conditions (oversold RSI, bullish MACD, golden cross)
+- ✅ STRONG SELL conditions (overbought RSI, bearish MACD, death cross)
+- ✅ HOLD recommendations (neutral indicators)
+- ✅ RSI extreme values (very oversold/overbought)
+- ✅ Golden/Death cross detection
+- ✅ Bollinger Bands signals (price near upper/lower bands)
+- ✅ MACD signal interpretation
+- ✅ Reasoning quality and explanations
+
+#### **Integration Tests** (`test_integration.py`)
+- ✅ Configuration file loading (portfolio, watchlist, ETF, US stocks)
+- ✅ Requirements file validation
+- ✅ Template file existence and content
+- ✅ Static file availability
+- ✅ Project structure integrity
+
+### 🎯 Critical Functionality Protected
+
+These tests ensure that core functionality remains intact during development:
+
+**🔧 Analysis Engine**: StockAnalyzer class, indicator calculations, recommendation generation
+**🌐 Web Interface**: All pages load, APIs respond, forms work
+**📊 Decision Logic**: Buy/sell/hold recommendations are accurate
+**🔗 Integration**: Configuration files, templates, static assets function properly
+
+### 🚀 Before Deployment
+
+Always run these tests before deploying changes:
+```bash
+# Clear pytest cache (if test discovery issues occur)
+rm -rf .pytest_cache
+
+# Full test suite (recommended)
+pytest tests/ -v
+
+# Quick critical tests (faster)
+pytest tests/test_stock_analyzer.py tests/test_flask_app.py -v
+```
+
+### 🔧 Troubleshooting Test Issues
+
+If pytest can't discover tests, try:
+```bash
+# Clear pytest cache
+rm -rf .pytest_cache
+
+# Run specific test
+python -m pytest tests/test_integration.py::TestIntegration::test_static_files_exist -v
+```
 
 ## Future Enhancements
 

@@ -16,6 +16,9 @@
     {% elif page_type == 'etf' %}
     <h2>ETF & Index Analysis</h2>
     <p class="info-text">Analyze major ETFs and market indexes for strategic investment decisions</p>
+    {% elif page_type == 'import_portfolio' %}
+    <h2>Import Portfolio</h2>
+    <p class="info-text">Import your portfolio from Robinhood, E-Trade, or other brokerages</p>
     {% endif %}
     
     {% if page_type in ['portfolio', 'watchlist'] %}
@@ -23,7 +26,7 @@
         <div class="form-group">
             <label for="symbols">Stock Symbols</label>
             <textarea id="symbols" name="symbols" rows="2" placeholder="Loading stocks from config file..." required></textarea>
-            <small class="form-hint">Edit your configuration files to update stock lists automatically</small>
+            <small class="form-hint">Edit your configuration files in the input/ directory to update stock lists automatically</small>
         </div>
         <div class="form-row">
             <div class="form-group">
@@ -43,6 +46,40 @@
             </div>
         </div>
         <button type="submit" class="btn btn-primary">Analyze {{ 'Portfolio' if page_type == 'portfolio' else 'Watchlist' }}</button>
+    </form>
+    {% elif page_type in ['import_portfolio'] %}
+    <form id="import-form" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="csv-file">Portfolio CSV File</label>
+            <input type="file" id="csv-file" name="file" accept=".csv" required>
+            <small class="form-hint">Export your portfolio as CSV from your brokerage</small>
+        </div>
+        <div class="form-group">
+            <label for="broker-select">Brokerage</label>
+            <select id="broker-select" name="broker">
+                <option value="auto">Auto-detect</option>
+                <option value="robinhood">Robinhood</option>
+                <option value="etrade">E-Trade</option>
+                <option value="fidelity">Fidelity</option>
+                <option value="schwab">Charles Schwab</option>
+                <option value="csv">Generic CSV</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="save-storage" name="save_to_storage" value="true" checked>
+                Save portfolio data for persistence
+            </label>
+            <small class="form-hint">Keeps data available after app restarts</small>
+        </div>
+        <div class="form-group">
+            <label class="checkbox-label">
+                <input type="checkbox" id="save-config" name="save_to_config" value="true" checked>
+                Save symbols to portfolio configuration
+            </label>
+            <small class="form-hint">Updates your portfolio for analysis</small>
+        </div>
+        <button type="submit" class="btn btn-primary">Import Portfolio</button>
     </form>
     {% else %}
     <form id="{% if page_type == 'market' %}market-form{% else %}etf-form{% endif %}">
