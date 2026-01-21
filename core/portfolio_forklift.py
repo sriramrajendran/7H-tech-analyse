@@ -30,37 +30,77 @@ class PortfolioForklift:
         Expected columns: Symbol, Quantity, Average Buy Price, Current Price, Equity, etc.
         """
         try:
+            # Read CSV with more flexible parsing
             df = pd.read_csv(file_path)
-            
+        except Exception as e:
+            logger.error(f"Failed to read CSV file: {str(e)}")
+            return {
+                'success': False,
+                'error': f'Failed to read CSV file: {str(e)}',
+                'broker': 'robinhood'
+            }
+        
+        try:
             # Validate required columns
             required_columns = ['symbol', 'quantity']
-            missing_columns = [col for col in required_columns if col.lower() not in [c.lower() for c in df.columns]]
+            available_columns = [col.lower() for col in df.columns]
+            missing_columns = [col for col in required_columns if col not in available_columns]
             
             if missing_columns:
                 return {
                     'success': False,
-                    'error': f'Missing required columns: {missing_columns}',
+                    'error': f'Missing required columns: {missing_columns}. Found columns: {available_columns}',
                     'broker': 'robinhood'
                 }
             
-            # Normalize column names
-            df.columns = [col.lower().replace(' ', '_') for col in df.columns]
+            # Normalize column names (handle spaces and case)
+            df.columns = [col.lower().replace(' ', '_').replace('-', '_') for col in df.columns]
             
             portfolio = []
-            for _, row in df.iterrows():
-                if pd.notna(row.get('symbol')) and row.get('quantity', 0) > 0:
+            for index, row in df.iterrows():
+                try:
+                    # Skip rows without essential data
+                    symbol = row.get('symbol')
+                    quantity = row.get('quantity')
+                    
+                    if pd.isna(symbol) or pd.isna(quantity) or quantity <= 0:
+                        continue
+                    
+                    # Clean symbol
+                    symbol = str(symbol).upper().strip()
+                    if not symbol:
+                        continue
+                    
+                    # Get default values properly to avoid nested parentheses
+                    avg_cost_default = row.get('average_cost', row.get('cost_basis', 0))
+                    price_default = row.get('price', 0)
+                    equity_default = row.get('total_value', row.get('value', 0))
+                    gain_loss_default = row.get('unrealized_gain_loss', 0)
+                    gain_pct_default = row.get('gain_loss_percent', 0)
+                    
                     holding = {
-                        'symbol': row['symbol'].upper(),
-                        'quantity': float(row.get('quantity', 0)),
-                        'average_cost': float(row.get('average_buy_price', row.get('average_cost', 0))),
-                        'current_price': float(row.get('current_price', 0)),
-                        'equity_value': float(row.get('equity', row.get('total_value', 0))),
-                        'gain_loss': float(row.get('gain_loss', 0)),
-                        'gain_loss_pct': float(row.get('gain_loss_pct', 0)),
+                        'symbol': symbol,
+                        'quantity': float(quantity),
+                        'average_cost': float(row.get('average_buy_price', avg_cost_default)),
+                        'current_price': float(row.get('current_price', price_default)),
+                        'equity_value': float(row.get('equity', equity_default)),
+                        'gain_loss': float(row.get('gain_loss', gain_loss_default)),
+                        'gain_loss_pct': float(row.get('gain_loss_pct', gain_pct_default)),
                         'broker': 'robinhood',
                         'import_date': datetime.now().isoformat()
                     }
                     portfolio.append(holding)
+                    
+                except Exception as row_error:
+                    logger.warning(f"Skipping row {index} due to error: {str(row_error)}")
+                    continue
+            
+            if not portfolio:
+                return {
+                    'success': False,
+                    'error': 'No valid portfolio data found in CSV. Check file format.',
+                    'broker': 'robinhood'
+                }
             
             return {
                 'success': True,

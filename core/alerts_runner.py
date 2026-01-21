@@ -77,7 +77,7 @@ def load_config() -> AlertConfig:
             "Missing Pushover credentials. Set PUSHOVER_APP_TOKEN and PUSHOVER_USER_KEY environment variables."
         )
 
-    state_file = Path(_env_str("ALERT_STATE_FILE", str(repo_root / ".alerts_state.json")))
+    state_file = Path(_env_str("ALERT_STATE_FILE", str(repo_root / "input" / ".alerts_state.json")))
     log_file_raw = os.getenv("ALERT_LOG_FILE")
     log_file = Path(log_file_raw).expanduser() if log_file_raw else None
 

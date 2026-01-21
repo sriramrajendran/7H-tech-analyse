@@ -361,6 +361,117 @@ rm -rf .pytest_cache
 python -m pytest tests/test_integration.py::TestIntegration::test_static_files_exist -v
 ```
 
+## 🚨 Automated Alerts (Pushover)
+
+The app can send **iPhone notifications** via Pushover when new BUY signals are detected for your portfolio or ETFs.
+
+### Setup
+
+1. **Copy the example environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+
+2. **Edit `.env` with your Pushover credentials:**
+   ```env
+   ALERTS_ENABLE=true
+   PUSHOVER_APP_TOKEN=your_app_token_here
+   PUSHOVER_USER_KEY=your_user_key_here
+   ```
+
+   - Get your tokens from [Pushover.net](https://pushover.net/)
+   - `PUSHOVER_APP_TOKEN`: Create an app on Pushover
+   - `PUSHOVER_USER_KEY`: Your user key on Pushover
+
+3. **Optional: Customize alert behavior** (see `.env.example` for all options):
+   ```bash
+   # Minimum score for alerts (default: 3)
+   ALERT_MARKET_MIN_SCORE=3
+   ALERT_ETF_MIN_SCORE=3
+
+   # Portfolio-only market alerts (default: true)
+   ALERT_MARKET_PORTFOLIO_ONLY=true
+
+   # How many top results to consider (default: 10)
+   ALERT_MARKET_TOP_N=10
+   ALERT_ETF_TOP_N=10
+
+   # ETF daily run time (default: 08:00)
+   ALERT_ETF_RUN_HOUR=8
+   ALERT_ETF_RUN_MINUTE=0
+   ```
+
+   **Full `.env.example` for reference:**
+   ```bash
+   # Alert Configuration
+   # Copy this file to .env and fill in your Pushover credentials
+   # Required for iPhone notifications via Pushover
+
+   ALERTS_ENABLE=true
+   PUSHOVER_APP_TOKEN=your_app_token_here
+   PUSHOVER_USER_KEY=your_user_key_here
+
+   # Optional: customize thresholds and behavior
+   ALERT_API_BASE_URL=http://127.0.0.1:80
+   ALERT_MARKET_MIN_SCORE=3
+   ALERT_MARKET_PORTFOLIO_ONLY=true
+   ALERT_MARKET_TOP_N=10
+   ALERT_MARKET_PERIOD=1y
+
+   ALERT_ETF_ENABLED=true
+   ALERT_ETF_MIN_SCORE=3
+   ALERT_ETF_TOP_N=10
+   ALERT_ETF_PERIOD=1y
+   ALERT_ETF_RUN_HOUR=8
+   ALERT_ETF_RUN_MINUTE=0
+
+   # Optional: log to file (defaults to /tmp/)
+   # ALERT_LOG_FILE=/path/to/alerts.log
+   ```
+
+4. **Restart the Flask app** to enable alerts.
+
+### How It Works
+
+- **Market alerts**: Run every hour during US market hours (9:30 AM–4:00 PM ET)
+  - Only BUY signals with score ≥ 3
+  - Filters to symbols in your portfolio (`input/config_portfolio.txt`)
+  - Sends notification for *new* signals only (deduped)
+
+- **ETF alerts**: Run daily at 8:00 AM local time
+  - Only BUY signals with score ≥ 3
+  - Sends notification for *new* ETF signals only
+
+### Optional Customization
+
+Add to `.env` to tune behavior:
+
+```env
+# Minimum score for alerts (default: 3)
+ALERT_MARKET_MIN_SCORE=3
+ALERT_ETF_MIN_SCORE=3
+
+# Portfolio-only market alerts (default: true)
+ALERT_MARKET_PORTFOLIO_ONLY=true
+
+# How many top results to consider (default: 10)
+ALERT_MARKET_TOP_N=10
+ALERT_ETF_TOP_N=10
+
+# ETF daily run time (default: 08:00)
+ALERT_ETF_RUN_HOUR=8
+ALERT_ETF_RUN_MINUTE=0
+
+# Optional: log alerts to a file
+ALERT_LOG_FILE=/path/to/alerts.log
+```
+
+### State & Deduplication
+
+- Alert state is stored in `input/.alerts_state.json` (auto-created)
+- Only *new* signals trigger notifications
+- State persists across app restarts
+
 ## Future Enhancements
 
 Potential features to add:
