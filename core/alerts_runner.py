@@ -165,8 +165,30 @@ def pushover_send(cfg: AlertConfig, title: str, message: str) -> None:
     data = urlencode(form).encode("utf-8")
     req = Request(PUSHOVER_API_URL, data=data, method="POST")
 
-    with urlopen(req, timeout=30) as resp:
-        _ = resp.read()
+    try:
+        with urlopen(req, timeout=30) as resp:
+            body = resp.read().decode("utf-8")
+            try:
+                j = json.loads(body)
+                status = j.get("status")
+                req_id = j.get("request")
+                if status != 1:
+                    log_line(cfg, f"Pushover: unexpected response status={status} body={body}")
+                else:
+                    log_line(cfg, f"Pushover: ok request={req_id}")
+            except Exception:
+                # Non-JSON success; ignore
+                pass
+    except HTTPError as e:
+        # Attempt to extract JSON error details
+        try:
+            body = e.read().decode("utf-8")
+            j = json.loads(body)
+            errors = j.get("errors") or j.get("error") or body
+            log_line(cfg, f"Pushover HTTPError {e.code}: {errors}")
+        except Exception:
+            log_line(cfg, f"Pushover HTTPError {e.code}: {e.reason}")
+        raise
 
 
 def load_state(cfg: AlertConfig) -> Dict[str, Any]:
@@ -204,6 +226,28 @@ def _fmt_line(item: Dict[str, Any]) -> str:
         parts.append(f"RSI {rsi}")
 
     return " - ".join(parts)
+
+
+def _load_dotenv(env_path: Path) -> None:
+    if not env_path.exists():
+        return
+    try:
+        for raw in env_path.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#"):
+                continue
+            if line.lower().startswith("export "):
+                line = line[7:].strip()
+            if "=" not in line:
+                continue
+            key, val = line.split("=", 1)
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = val
+    except Exception:
+        # Silent fallback if .env parsing fails
+        pass
 
 
 def run_market(cfg: AlertConfig, repo_root: Path, state: Dict[str, Any]) -> Tuple[bool, Dict[str, Any]]:
@@ -291,6 +335,8 @@ def main(argv: List[str]) -> int:
     mode = (argv[1] if len(argv) > 1 else "all").strip().lower()
 
     try:
+        repo_root = Path(__file__).resolve().parents[1]
+        _load_dotenv(repo_root / ".env")
         cfg = load_config()
     except Exception as e:
         print(str(e), file=sys.stderr)
@@ -302,6 +348,13 @@ def main(argv: List[str]) -> int:
     changed = False
 
     try:
+        if mode in {"test", "pushover_test"}:
+            title = "7H Alerts Test"
+            message = f"Test push at {now_et().isoformat(timespec='seconds')}"
+            pushover_send(cfg, title=title, message=message)
+            log_line(cfg, "Test: sent pushover test alert")
+            return 0
+
         if mode in {"all", "market"} and cfg.market_enabled:
             _, state = run_market(cfg, repo_root, state)
             changed = True
