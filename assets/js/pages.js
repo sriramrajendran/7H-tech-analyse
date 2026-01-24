@@ -291,42 +291,77 @@ class PageManager {
             </div>
         `;
     }
-
+    
+    attachEventListeners(pageType) {
+        // Remove existing listeners to prevent duplicates
+        const existingForm = document.getElementById(`${pageType}-form`);
+        if (existingForm) {
+            const newForm = existingForm.cloneNode(true);
+            existingForm.parentNode.replaceChild(newForm, existingForm);
+        }
+        
+        // Add form submit listener
+        const form = document.getElementById(`${pageType}-form`);
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                this.handleFormSubmit(pageType);
+            });
+        }
+    }
+    
+    handleFormSubmit(pageType) {
+        const symbolsInput = document.getElementById('symbols');
+        const periodSelect = document.getElementById('period');
+        const topNSelect = document.getElementById('top_n');
+        
+        if (!symbolsInput || !periodSelect || !topNSelect) {
+            showError('Form elements not found');
+            return;
+        }
+        
+        const symbols = symbolsInput.value.trim();
+        const period = periodSelect.value;
+        const topN = parseInt(topNSelect.value);
+        
+        if (!symbols) {
+            showError('Please enter at least one stock symbol');
+            return;
+        }
+        
+        const symbolArray = symbols.split(/[\s,]+/).filter(s => s.trim()).map(s => s.toUpperCase());
+        this.analyzeStocks(symbolArray, period, topN, pageType);
+    }
+    
     async autoAnalyzePage(pageType) {
-        let symbols, period, topN, formId;
+        let symbols, period, topN;
 
         switch(pageType) {
             case 'portfolio':
-                symbols = this.defaultStocks.portfolio;
-                period = document.getElementById('portfolio-period')?.value || '1y';
-                topN = parseInt(document.getElementById('top-n')?.value || '10');
-                formId = 'portfolio-form';
+                symbols = this.getDefaultStocks('portfolio');
+                period = this.getDefaultPeriod('portfolio');
+                topN = this.getDefaultTopN('portfolio');
                 break;
             case 'watchlist':
-                symbols = this.defaultStocks.watchlist;
-                period = document.getElementById('portfolio-period')?.value || '1y';
-                topN = parseInt(document.getElementById('top-n')?.value || '10');
-                formId = 'watchlist-form';
+                symbols = this.getDefaultStocks('watchlist');
+                period = this.getDefaultPeriod('watchlist');
+                topN = this.getDefaultTopN('watchlist');
                 break;
             case 'market':
-                symbols = this.defaultStocks.market;
-                period = document.getElementById('market-period')?.value || '1y';
-                topN = parseInt(document.getElementById('market-top-n')?.value || '10');
-                formId = 'market-form';
+                symbols = this.getDefaultStocks('market');
+                period = this.getDefaultPeriod('market');
+                topN = this.getDefaultTopN('market');
                 break;
             case 'etf':
-                symbols = this.defaultStocks.etf;
-                period = document.getElementById('market-period')?.value || '1y';
-                topN = parseInt(document.getElementById('market-top-n')?.value || '10');
-                formId = 'etf-form';
+                symbols = this.getDefaultStocks('etf');
+                period = this.getDefaultPeriod('etf');
+                topN = this.getDefaultTopN('etf');
                 break;
             default:
                 return;
         }
 
-        if (symbols && symbols.length > 0) {
-            await this.analyzeStocks(symbols, period, topN, pageType);
-        }
+        await this.analyzeStocks(symbols, period, topN, pageType);
     }
 
     async analyzeStocks(symbols, period, topN, pageType) {

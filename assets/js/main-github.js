@@ -453,71 +453,11 @@ function getRecommendationClass(recommendation) {
     return 'recommendation-hold';
 }
 
-// Form event handlers
+// Form event handlers - Now handled by PageManager.attachEventListeners()
 document.addEventListener('DOMContentLoaded', () => {
-    // Portfolio form
-    const portfolioForm = document.getElementById('portfolio-form');
-    if (portfolioForm) {
-        portfolioForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const symbols = document.getElementById('symbols').value.trim();
-            const period = document.getElementById('portfolio-period').value;
-            const topN = parseInt(document.getElementById('top-n').value);
-            
-            if (!symbols) {
-                showError('Please enter stock symbols');
-                return;
-            }
-            
-            const symbolsArray = symbols.split(/[\s,]+/).filter(s => s.trim());
-            await pageManager.analyzeStocks(symbolsArray, period, topN, 'portfolio');
-        });
-    }
+    // Initialize page manager
+    pageManager.loadPage('portfolio');
     
-    // Watchlist form
-    const watchlistForm = document.getElementById('watchlist-form');
-    if (watchlistForm) {
-        watchlistForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const symbols = document.getElementById('symbols').value.trim();
-            const period = document.getElementById('portfolio-period').value;
-            const topN = parseInt(document.getElementById('top-n').value);
-            
-            if (!symbols) {
-                showError('Please enter stock symbols');
-                return;
-            }
-            
-            const symbolsArray = symbols.split(/[\s,]+/).filter(s => s.trim());
-            await pageManager.analyzeStocks(symbolsArray, period, topN, 'watchlist');
-        });
-    }
-    
-    // Market form
-    const marketForm = document.getElementById('market-form');
-    if (marketForm) {
-        marketForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const period = document.getElementById('market-period').value;
-            const topN = parseInt(document.getElementById('market-top-n').value);
-            
-            await pageManager.analyzeStocks(pageManager.defaultStocks.market, period, topN, 'market');
-        });
-    }
-    
-    // ETF form
-    const etfForm = document.getElementById('etf-form');
-    if (etfForm) {
-        etfForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const period = document.getElementById('market-period').value;
-            const topN = parseInt(document.getElementById('market-top-n').value);
-            
-            await pageManager.analyzeStocks(pageManager.defaultStocks.etf, period, topN, 'etf');
-        });
-    }
+    // Navigation is handled by pageManager.loadPage()
+    // Form events are handled by PageManager.attachEventListeners()
 });
