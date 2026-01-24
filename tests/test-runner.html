@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7H Stock Analyzer - Test Runner</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .test-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+            transition: all 0.3s ease;
+        }
+        
+        .test-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+        
+        .test-button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .results {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .summary-card {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .summary-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .summary-card .number {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .pass { color: #4CAF50; }
+        .fail { color: #f44336; }
+        .info { color: #2196F3; }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 7H Stock Analyzer Test Suite</h1>
+        
+        <div class="test-section">
+            <h2>📋 Test Categories</h2>
+            <p>Run comprehensive tests for all critical components of the stock analyzer application.</p>
+            
+            <div style="text-align: center; margin: 30px 0;">
+                <button class="test-button" onclick="runAllTests()">🚀 Run All Tests</button>
+                <button class="test-button" onclick="runStockAnalyzerTests()">📊 StockAnalyzer Tests</button>
+                <button class="test-button" onclick="runPageManagerTests()">📄 PageManager Tests</button>
+                <button class="test-button" onclick="runMainGitHubTests()">⚙️ Main GitHub Tests</button>
+                <button class="test-button" onclick="clearResults()">🗑️ Clear Results</button>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+        
+        <div class="summary" id="summary" style="display: none;">
+            <div class="summary-card">
+                <h3>📊 Total Tests</h3>
+                <div class="number" id="totalTests">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>✅ Passed</h3>
+                <div class="number pass" id="passedTests">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>❌ Failed</h3>
+                <div class="number fail" id="failedTests">0</div>
+            </div>
+            <div class="summary-card">
+                <h3>📈 Success Rate</h3>
+                <div class="number info" id="successRate">0%</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📝 Test Results</h2>
+            <div class="results" id="testResults">
+                <div class="loading">Click a test button above to run tests...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load the application scripts for testing -->
+    <script src="../assets/js/stock-analyzer.js"></script>
+    <script src="../assets/js/pages.js"></script>
+    <script src="../assets/js/main-github.js"></script>
+    
+    <!-- Load test files -->
+    <script src="stock-analyzer.test.js"></script>
+    <script src="pages.test.js"></script>
+    <script src="main-github.test.js"></script>
+
+    <script>
+        let currentTestIndex = 0;
+        let totalTestsRun = 0;
+        let totalPassed = 0;
+        let totalFailed = 0;
+
+        function updateProgress(percentage) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+        }
+
+        function updateSummary(passed, failed, total) {
+            document.getElementById('summary').style.display = 'grid';
+            document.getElementById('totalTests').textContent = total;
+            document.getElementById('passedTests').textContent = passed;
+            document.getElementById('failedTests').textContent = failed;
+            
+            const successRate = total > 0 ? ((passed / total) * 100).toFixed(1) : 0;
+            document.getElementById('successRate').textContent = successRate + '%';
+        }
+
+        function appendResults(content) {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML += content;
+            resultsDiv.scrollTop = resultsDiv.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '<div class="loading">Ready to run tests...</div>';
+            document.getElementById('summary').style.display = 'none';
+            updateProgress(0);
+            totalTestsRun = 0;
+            totalPassed = 0;
+            totalFailed = 0;
+        }
+
+        async function runStockAnalyzerTests() {
+            appendResults('\n🔬 Running StockAnalyzer Tests...\n');
+            updateProgress(25);
+            
+            const tests = new StockAnalyzerTests();
+            const results = await tests.runAllTests();
+            
+            totalTestsRun += results.total;
+            totalPassed += results.passed;
+            totalFailed += results.failed;
+            
+            updateSummary(totalPassed, totalFailed, totalTestsRun);
+            updateProgress(100);
+        }
+
+        async function runPageManagerTests() {
+            appendResults('\n📄 Running PageManager Tests...\n');
+            updateProgress(25);
+            
+            const tests = new PageManagerTests();
+            const results = await tests.runAllTests();
+            
+            totalTestsRun += results.passed + results.failed;
+            totalPassed += results.passed;
+            totalFailed += results.failed;
+            
+            updateSummary(totalPassed, totalFailed, totalTestsRun);
+            updateProgress(100);
+        }
+
+        async function runMainGitHubTests() {
+            appendResults('\n⚙️ Running Main GitHub Tests...\n');
+            updateProgress(25);
+            
+            const tests = new MainGitHubTests();
+            const results = await tests.runAllTests();
+            
+            totalTestsRun += results.passed + results.failed;
+            totalPassed += results.passed;
+            totalFailed += results.failed;
+            
+            updateSummary(totalPassed, totalFailed, totalTestsRun);
+            updateProgress(100);
+        }
+
+        async function runAllTests() {
+            clearResults();
+            appendResults('🚀 Starting comprehensive test suite...\n');
+            
+            updateProgress(10);
+            await runStockAnalyzerTests();
+            
+            updateProgress(50);
+            await runPageManagerTests();
+            
+            updateProgress(75);
+            await runMainGitHubTests();
+            
+            updateProgress(100);
+            
+            appendResults('\n🎉 All tests completed!\n');
+            appendResults(`📊 Final Summary: ${totalPassed}/${totalTestsRun} tests passed (${((totalPassed/totalTestsRun)*100).toFixed(1)}%)\n`);
+            
+            if (totalFailed === 0) {
+                appendResults('✅ All tests passed! The application is ready for deployment.\n');
+            } else {
+                appendResults(`⚠️  ${totalFailed} test(s) failed. Please review and fix issues before deployment.\n`);
+            }
+        }
+
+        // Auto-run tests when page loads (optional)
+        // window.addEventListener('load', () => {
+        //     setTimeout(runAllTests, 1000);
+        // });
+    </script>
+</body>
+</html>

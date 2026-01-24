@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}7H Stock Analyzer - AI-Powered Investment Insights{% endblock %}</title>
+    <title>7H Stock Analyzer - AI-Powered Investment Insights</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📈</text></svg>">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="assets/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -16,23 +16,23 @@
                 <h2>📈 7H Stock Analyzer</h2>
             </div>
             <nav class="sidebar-nav">
-                <a href="/" class="nav-link" id="nav-portfolio">
+                <a href="#portfolio" class="nav-link" id="nav-portfolio" data-page="portfolio">
                     <span class="nav-icon">🏠</span>
                     <span class="nav-text">Portfolio</span>
                 </a>
-                <a href="/watchlist" class="nav-link" id="nav-watchlist">
+                <a href="#watchlist" class="nav-link" id="nav-watchlist" data-page="watchlist">
                     <span class="nav-icon">⭐</span>
                     <span class="nav-text">Watchlist</span>
                 </a>
-                <a href="/market" class="nav-link" id="nav-market">
+                <a href="#market" class="nav-link" id="nav-market" data-page="market">
                     <span class="nav-icon">📊</span>
                     <span class="nav-text">Market</span>
                 </a>
-                <a href="/etf" class="nav-link" id="nav-etf">
+                <a href="#etf" class="nav-link" id="nav-etf" data-page="etf">
                     <span class="nav-icon">📈</span>
                     <span class="nav-text">ETFs/Indexes</span>
                 </a>
-                <a href="/import_portfolio" class="nav-link" id="nav-import">
+                <a href="#import" class="nav-link" id="nav-import" data-page="import">
                     <span class="nav-icon">📥</span>
                     <span class="nav-text">Import Portfolio</span>
                 </a>
@@ -47,8 +47,12 @@
                     <p class="subtitle">AI-Powered Investment Intelligence & Market Insights</p>
                 </header>
                 
-                <main>
-                    {% block content %}{% endblock %}
+                <main id="main-content">
+                    <!-- Content will be dynamically loaded here -->
+                    <div class="card">
+                        <h2>Welcome to 7H Stock Analyzer</h2>
+                        <p class="info-text">Select an option from the menu to begin analyzing stocks and portfolios.</p>
+                    </div>
                 </main>
                 
                 <footer>
@@ -59,8 +63,27 @@
         </div>
     </div>
     
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-    {% block scripts %}{% endblock %}
+    <!-- Loading Overlay -->
+    <div id="loading" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>Analyzing market data...</p>
+    </div>
+
+    <!-- Stock Detail Modal -->
+    <div id="stock-detail-modal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modal-title">Stock Details</h2>
+                <button class="modal-close" onclick="closeStockDetail()">&times;</button>
+            </div>
+            <div class="modal-body" id="modal-body">
+                <!-- Content will be dynamically loaded -->
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/stock-analyzer.js"></script>
+    <script src="assets/js/pages.js"></script>
+    <script src="assets/js/main-github.js"></script>
 </body>
 </html>
-

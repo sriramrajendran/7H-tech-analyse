@@ -1,0 +1,113 @@
+{
+  "portfolio": {
+    "name": "Portfolio Analysis",
+    "description": "Default portfolio stocks for analysis",
+    "symbols": ["AAPL", "MSFT", "GOOGL", "TSLA", "NVDA", "AMZN", "META", "NFLX"],
+    "defaultPeriod": "1y",
+    "defaultTopN": 5
+  },
+  "watchlist": {
+    "name": "Watchlist Analysis", 
+    "description": "Default watchlist stocks for tracking",
+    "symbols": ["SPY", "QQQ", "IWM", "DIA", "VTI", "VOO", "GLD", "BTC-USD"],
+    "defaultPeriod": "6mo",
+    "defaultTopN": 3
+  },
+  "market": {
+    "name": "US Market Analysis",
+    "description": "Major US stocks for market analysis", 
+    "symbols": ["AAPL", "MSFT", "GOOGL", "AMZN", "META", "TSLA", "NVDA", "JPM", "JNJ", "V"],
+    "defaultPeriod": "3mo",
+    "defaultTopN": 10
+  },
+  "etf": {
+    "name": "ETF/Index Analysis",
+    "description": "Major ETFs and index funds",
+    "symbols": ["SPY", "QQQ", "IWM", "DIA", "VTI", "VOO", "VUG", "VTV", "GLD", "SLV"],
+    "defaultPeriod": "6mo", 
+    "defaultTopN": 8
+  },
+  "ui": {
+    "theme": {
+      "primary": "#667eea",
+      "secondary": "#764ba2", 
+      "accent": "#4CAF50",
+      "warning": "#ff9800",
+      "error": "#f44336",
+      "success": "#4CAF50"
+    },
+    "responsive": {
+      "mobileBreakpoint": "768px",
+      "tabletBreakpoint": "1024px"
+    },
+    "animations": {
+      "duration": "0.3s",
+      "easing": "ease-in-out"
+    }
+  },
+  "api": {
+    "yahooFinance": {
+      "baseUrl": "https://query1.finance.yahoo.com/v8/finance/chart",
+      "corsProxy": "https://cors-anywhere.herokuapp.com/",
+      "timeout": 10000,
+      "retryAttempts": 3
+    },
+    "fallback": {
+      "useMockData": true,
+      "mockDataVolatility": 0.02
+    }
+  },
+  "analysis": {
+    "indicators": {
+      "rsi": {
+        "period": 14,
+        "oversold": 30,
+        "overbought": 70
+      },
+      "macd": {
+        "fast": 12,
+        "slow": 26,
+        "signal": 9
+      },
+      "sma": {
+        "short": 20,
+        "medium": 50,
+        "long": 200
+      },
+      "bollingerBands": {
+        "period": 20,
+        "stdDev": 2
+      },
+      "stochastic": {
+        "period": 14,
+        "smoothK": 3,
+        "smoothD": 3
+      }
+    },
+    "recommendations": {
+      "strongBuy": {
+        "minScore": 5,
+        "color": "#2e7d32"
+      },
+      "buy": {
+        "minScore": 2,
+        "maxScore": 4,
+        "color": "#43a047"
+      },
+      "hold": {
+        "minScore": -1,
+        "maxScore": 1,
+        "color": "#f57c00"
+      },
+      "sell": {
+        "minScore": -4,
+        "maxScore": -2,
+        "color": "#d32f2f"
+      },
+      "strongSell": {
+        "maxScore": -5,
+        "color": "#b71c1c"
+      }
+    }
+  }
+}
