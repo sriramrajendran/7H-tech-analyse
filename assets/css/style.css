@@ -53,13 +53,24 @@ body {
     border-bottom: 1px solid var(--border);
 }
 
-.sidebar-header h2 {
-    font-size: 0.9rem;
+.logo-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.logo {
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+}
+
+.brand-text {
+    font-size: 1.1rem;
+    font-weight: 700;
     color: var(--primary);
-    margin: 0;
-    font-weight: 600;
-    line-height: 1.2;
-    text-align: center;
+    letter-spacing: 0.5px;
 }
 
 .sidebar-nav {
@@ -439,32 +450,62 @@ textarea {
     -webkit-overflow-scrolling: touch;
 }
 
-.stocks-table th {
-    background: linear-gradient(135deg, #2563eb, #1e40af);
-    color: white;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.7rem;
-    border-bottom: 2px solid #1e40af;
-}
-
 .stocks-table th,
 .stocks-table td {
-    padding: 6px 8px;
+    padding: 8px 6px;
     text-align: left;
     font-size: 0.75rem;
     line-height: 1.2;
-}
-
-/* Remove company column styling - no longer needed */
-
-.stocks-table th:not(:nth-child(2)),
-.stocks-table td:not(:nth-child(2)) {
+    border-right: 1px solid var(--border);
     white-space: nowrap;
 }
 
-/* Make change columns narrower */
+.stocks-table th:last-child,
+.stocks-table td:last-child {
+    border-right: none;
+}
+
+/* Header styling */
+.stocks-table th {
+    background: var(--primary);
+    color: white;
+    font-weight: 600;
+    font-size: 0.7rem;
+    padding: 10px 6px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Rank column */
+.stocks-table th:nth-child(1), /* Rank */
+.stocks-table td:nth-child(1) {
+    width: 40px;
+    text-align: center;
+    min-width: 40px;
+    max-width: 40px;
+}
+
+/* Symbol column */
+.stocks-table th:nth-child(2), /* Symbol */
+.stocks-table td:nth-child(2) {
+    width: 80px;
+    min-width: 80px;
+    max-width: 100px;
+}
+
+.stocks-table th:nth-child(3), /* Price */
+.stocks-table td:nth-child(3) {
+    width: 70px;
+    text-align: right;
+    min-width: 70px;
+    max-width: 80px;
+}
+
+/* Change columns (1D, 1W, 1M, 6M, 1Y) */
 .stocks-table th:nth-child(4),
 .stocks-table th:nth-child(5),
 .stocks-table th:nth-child(6),
@@ -475,41 +516,139 @@ textarea {
 .stocks-table td:nth-child(6),
 .stocks-table td:nth-child(7),
 .stocks-table td:nth-child(8) {
-    text-align: center;
-    min-width: 50px;
-    max-width: 65px;
+    width: 55px;
+    text-align: right;
+    min-width: 55px;
+    max-width: 60px;
     font-size: 0.7rem;
-    padding: 4px 6px;
+    padding: 6px 4px;
 }
 
-/* Make pattern columns compact */
+/* RSI column */
 .stocks-table th:nth-child(9),
+.stocks-table td:nth-child(9) {
+    width: 50px;
+    text-align: center;
+    min-width: 50px;
+    max-width: 55px;
+}
+
+/* Pattern columns (VCP, RSI Div, MACD Div, Cross, Breakout) */
 .stocks-table th:nth-child(10),
 .stocks-table th:nth-child(11),
 .stocks-table th:nth-child(12),
 .stocks-table th:nth-child(13),
-.stocks-table td:nth-child(9),
+.stocks-table th:nth-child(14),
 .stocks-table td:nth-child(10),
 .stocks-table td:nth-child(11),
 .stocks-table td:nth-child(12),
-.stocks-table td:nth-child(13) {
+.stocks-table td:nth-child(13),
+.stocks-table td:nth-child(14) {
+    width: 45px;
     text-align: center;
     min-width: 45px;
-    max-width: 55px;
-    font-size: 0.7rem;
-    padding: 4px 4px;
+    max-width: 50px;
+    font-size: 0.65rem;
+    padding: 4px 2px;
+}
+
+/* Recommendation column */
+.stocks-table th:nth-child(15),
+.stocks-table td:nth-child(15) {
+    width: 80px;
+    text-align: center;
+    min-width: 80px;
+    max-width: 90px;
+}
+
+/* Score column */
+.stocks-table th:nth-child(16),
+.stocks-table td:nth-child(16) {
+    width: 50px;
+    text-align: center;
+    min-width: 50px;
+    max-width: 60px;
+}
+
+/* Row styling */
+.stocks-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background-color 0.2s ease;
+}
+
+.stocks-table tbody tr:hover {
+    background: var(--bg);
+}
+
+/* Clickable row styling */
+.stocks-table tbody .clickable-row {
+    cursor: pointer;
+    position: relative;
+}
+
+.stocks-table tbody .clickable-row:hover {
+    background: linear-gradient(90deg, rgba(102, 126, 234, 0.05), rgba(102, 126, 234, 0.02));
+    transform: scale(1.001);
+}
+
+.stocks-table tbody .clickable-row:hover td {
+    font-weight: 500;
+}
+
+.stocks-table tbody .clickable-row::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 3px;
+    background: var(--primary);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.stocks-table tbody .clickable-row:hover::before {
+    opacity: 1;
+}
+
+.stocks-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1400px) {
+    .stocks-table {
+        min-width: 1100px;
+    }
+    
+    .stocks-table th,
+    .stocks-table td {
+        font-size: 0.7rem;
+        padding: 6px 4px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .stocks-table {
+        min-width: 1000px;
+    }
+    
+    .stocks-table th,
+    .stocks-table td {
+        font-size: 0.65rem;
+        padding: 5px 3px;
+    }
 }
 
 /* Make recommendation and score columns compact */
-.stocks-table th:nth-child(14),
 .stocks-table th:nth-child(15),
-.stocks-table td:nth-child(14),
-.stocks-table td:nth-child(15) {
+.stocks-table th:nth-child(16),
+.stocks-table td:nth-child(15),
+.stocks-table td:nth-child(16) {
     text-align: center;
     min-width: 70px;
     max-width: 85px;
-    font-size: 0.7rem;
-    padding: 4px 6px;
+    font-weight: 600;
 }
 
 /* Symbol column */
@@ -560,10 +699,21 @@ textarea {
     padding: 4px 6px;
 }
 
-.stocks-table tbody tr {
-    border-bottom: 1px solid #f1f5f9;
-    transition: all 0.2s ease;
-    cursor: pointer;
+/* Symbol column hover */
+.stocks-table td:nth-child(2):hover::after {
+    content: attr(data-company);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
 }
 
 .stocks-table tbody tr:hover {
@@ -833,39 +983,92 @@ footer {
 
 .controls-row {
     display: flex;
-    gap: 15px;
-    align-items: end;
+    gap: 20px;
+    align-items: flex-end;
     flex-wrap: wrap;
+    margin-bottom: 20px;
     margin-top: 20px;
 }
 
 .controls-row .form-group {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 8px;
+    min-width: 150px;
+    flex: 1;
 }
 
 .controls-row .form-group label {
-    font-weight: 500;
+    font-weight: 600;
     font-size: 14px;
+    color: var(--text);
+    margin-bottom: 4px;
+    display: block;
 }
 
 .controls-row .form-group input,
 .controls-row .form-group select,
 .controls-row .form-group textarea {
-    padding: 8px 12px;
-    border: 1px solid #ddd;
-    border-radius: 6px;
+    padding: 10px 12px;
+    border: 2px solid var(--border);
+    border-radius: 8px;
     font-size: 14px;
+    font-family: inherit;
+    background: var(--card-bg);
+    color: var(--text);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.controls-row .form-group input:focus,
+.controls-row .form-group select:focus,
+.controls-row .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
 .controls-row .form-group textarea {
-    min-width: 200px;
+    min-width: 300px;
+    min-height: 60px;
     resize: vertical;
+    font-family: inherit;
 }
 
 .controls-row .form-group select {
-    min-width: 120px;
+    min-width: 150px;
+    cursor: pointer;
+}
+
+.controls-row .form-group select option {
+    background: var(--card-bg);
+    color: var(--text);
+}
+
+.controls-row + .controls-row {
+    margin-top: 10px;
+}
+
+.controls-row .btn {
+    align-self: flex-end;
+    margin-top: auto;
+    height: fit-content;
+    padding: 10px 20px;
+    font-weight: 600;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+/* Ensure proper alignment for form buttons */
+.controls-row .btn-primary {
+    background: var(--primary);
+    color: white;
+    border: none;
+}
+
+.controls-row .btn-primary:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .recommendation-buy {
@@ -1098,8 +1301,8 @@ footer {
         display: none;
     }
     
-    .sidebar-header h2 {
-        font-size: 1rem;
+    .brand-text {
+        display: none;
     }
     
     .main-content {
@@ -1507,6 +1710,208 @@ input[type="file"]::file-selector-button:hover {
     font-style: italic;
     margin-top: 0.5rem;
     line-height: 1.3;
+}
+
+/* Modal Enhancements */
+.modal-content {
+    max-width: 1200px;
+    width: 95vw;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+/* Side by Side Container */
+.side-by-side-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 30px;
+    width: 100%;
+    max-width: 100%;
+}
+
+@media (max-width: 1024px) {
+    .side-by-side-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+}
+
+/* Analysis Container */
+.analysis-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+}
+
+/* Section Styling */
+.analysis-section {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.analysis-section h3 {
+    margin: 0 0 20px 0;
+    color: var(--text);
+    font-size: 1.2rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.analysis-section h4 {
+    margin: 15px 0 15px 0;
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+/* Fundamental and Technical Sections */
+.fundamental-section {
+    border-left: 4px solid var(--success);
+}
+
+.technical-section {
+    border-left: 4px solid var(--primary);
+}
+
+.recommendations-section {
+    border-left: 4px solid var(--warning);
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.05), rgba(102, 126, 234, 0.05));
+}
+
+.recommendations-section.full-width {
+    grid-column: 1 / -1;
+    width: 100%;
+}
+
+/* Recommendation Summary */
+.recommendation-summary {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.recommendation-main,
+.score-main {
+    text-align: center;
+    padding: 20px;
+    background: var(--bg);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.recommendation-large {
+    font-size: 1.5rem;
+    font-weight: 700;
+    padding: 10px 20px;
+    border-radius: 8px;
+    display: inline-block;
+    margin: 10px 0;
+}
+
+.score-large {
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 10px 0;
+}
+
+/* Enhanced Indicator Grid */
+.indicators-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.indicator-card {
+    background: var(--bg);
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.indicator-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.indicator-label {
+    font-size: 0.75rem;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.indicator-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+/* Pattern Section */
+.patterns-section {
+    margin-top: 20px;
+}
+
+.patterns-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+/* Modal Responsive */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 98vw;
+        max-height: 95vh;
+    }
+    
+    .recommendation-summary {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .indicators-grid {
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+    
+    .patterns-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .recommendation-large {
+        font-size: 1.2rem;
+        padding: 8px 16px;
+    }
+    
+    .score-large {
+        font-size: 1.5rem;
+    }
+}
+
+/* Score Colors */
+.score-positive {
+    color: var(--success);
+}
+
+.score-negative {
+    color: var(--danger);
+}
+
+.pattern-status.pattern-insufficient {
+    background: var(--text-light);
+    color: white;
 }
 
 /* Pattern status colors */

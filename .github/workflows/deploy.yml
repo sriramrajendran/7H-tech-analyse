@@ -34,6 +34,7 @@ jobs:
         # Copy essential files for GitHub Pages
         cp index.html build/
         cp -r assets build/
+        cp CNAME build/ 2>/dev/null || echo "beaconoftech.com" > build/CNAME
         
         # Create .nojekyll file
         touch build/.nojekyll

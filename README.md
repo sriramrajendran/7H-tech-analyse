@@ -48,6 +48,10 @@ A **static web application** for AI-powered stock analysis that runs entirely on
 git clone https://github.com/[your-username]/7h-stock-analysis.git
 cd 7h-stock-analysis
 
+# Kill any existing processes on ports 8000 and 8001
+lsof -ti:8000 | xargs kill -9 2>/dev/null || true
+lsof -ti:8001 | xargs kill -9 2>/dev/null || true
+
 # Serve locally (any static server)
 python3 -m http.server 8000
 # or
@@ -58,6 +62,9 @@ npx serve .
 
 ### **Running Tests**
 ```bash
+# Kill any existing processes on port 8001
+lsof -ti:8001 | xargs kill -9 2>/dev/null || true
+
 # Serve test runner
 python3 -m http.server 8001 --directory tests
 
