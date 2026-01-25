@@ -172,10 +172,13 @@ h6 {
     left: 0;
     top: 0;
     height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile */
     display: flex;
     flex-direction: column;
     z-index: 1000;
     transition: transform var(--transition-normal);
+    max-height: 100vh;
+    overflow: hidden;
 }
 
 .sidebar-header {
@@ -184,6 +187,8 @@ h6 {
     background: var(--gradient-card);
     position: relative;
     overflow: hidden;
+    flex-shrink: 0;
+    height: auto;
 }
 
 .sidebar-header::before {
@@ -302,6 +307,29 @@ h6 {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+    min-height: 0;
+    max-height: calc(100vh - 120px);
+}
+
+/* Custom scrollbar for sidebar */
+.sidebar-nav::-webkit-scrollbar {
+    width: 6px;
+}
+
+.sidebar-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb:hover {
+    background: var(--border-secondary);
 }
 
 .nav-section {
@@ -5534,46 +5562,71 @@ body.dark-theme .table-wrapper .stocks-table thead th:nth-child(3) {
 /* Patterns Grid */
 .patterns-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: var(--space-3);
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: var(--space-6);
 }
 
 /* Pattern Card */
 .pattern-card {
     background: var(--gradient-card);
     border: 1px solid var(--border-primary);
-    border-radius: var(--radius-md);
-    padding: var(--space-3);
-    transition: all var(--transition-normal);
-    box-shadow: var(--shadow-sm);
+    border-radius: var(--radius-xl);
+    padding: var(--space-5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.06);
     display: flex;
     flex-direction: column;
-    gap: var(--space-2);
+    gap: var(--space-4);
+    position: relative;
+    overflow: hidden;
+}
+
+.pattern-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--gradient-accent);
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .pattern-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.06);
     border-color: var(--primary);
+}
+
+.pattern-card:hover::before {
+    opacity: 1;
 }
 
 /* Pattern Visual */
 .pattern-visual {
     width: 100%;
-    height: 100px;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-sm);
-    padding: var(--space-2);
+    height: 120px;
+    background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
     display: flex;
     align-items: center;
     justify-content: center;
     border: 1px solid var(--border-primary);
+    transition: all 0.3s ease;
+}
+
+.pattern-card:hover .pattern-visual {
+    background: linear-gradient(135deg, var(--bg-tertiary) 0%, var(--bg-secondary) 100%);
+    transform: scale(1.02);
 }
 
 .pattern-visual svg {
     width: 100%;
     height: 100%;
-    max-width: 260px;
+    max-width: 280px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 }
 
 /* Pattern Content */
@@ -5591,22 +5644,24 @@ body.dark-theme .table-wrapper .stocks-table thead th:nth-child(3) {
 }
 
 .pattern-name {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 700;
     color: var(--text-primary);
     margin: 0;
     flex: 1;
-    line-height: 1.25;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
 }
 
 .pattern-badge {
-    padding: 2px var(--space-2);
+    padding: 4px var(--space-3);
     border-radius: var(--radius-full);
     font-size: 0.65rem;
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
     white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .pattern-badge.success {
@@ -5630,8 +5685,9 @@ body.dark-theme .table-wrapper .stocks-table thead th:nth-child(3) {
 .pattern-reliability {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: var(--space-2);
     font-size: 0.8rem;
+    padding: var(--space-2) 0;
 }
 
 .reliability-label {
@@ -5641,8 +5697,9 @@ body.dark-theme .table-wrapper .stocks-table thead th:nth-child(3) {
 
 .reliability-value {
     font-weight: 700;
-    padding: 2px var(--space-2);
+    padding: 3px var(--space-3);
     border-radius: var(--radius-md);
+    font-size: 0.75rem;
 }
 
 .reliability-value.success {
@@ -5661,9 +5718,9 @@ body.dark-theme .table-wrapper .stocks-table thead th:nth-child(3) {
 }
 
 .pattern-description {
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: var(--text-secondary);
-    line-height: 1.4;
+    line-height: 1.6;
     margin: 0;
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -5845,45 +5902,92 @@ body.dark-theme .table-wrapper .stocks-table thead th:nth-child(3) {
 /* Responsive Design for Patterns */
 @media (max-width: 1024px) {
     .patterns-grid {
-        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: var(--space-5);
+    }
+    
+    .pattern-card {
+        padding: var(--space-4);
     }
 }
 
 @media (max-width: 768px) {
-    .patterns-page .header-content-wrapper {
+    .patterns-page .header-content-wrapper,
+    .candlestick-patterns-page .header-content-wrapper {
         flex-direction: column;
         align-items: flex-start;
+        gap: var(--space-3);
     }
     
-    .patterns-page .header-icon-wrapper {
+    .patterns-page .header-icon-wrapper,
+    .candlestick-patterns-page .header-icon-wrapper {
         width: 48px;
         height: 48px;
     }
     
-    .patterns-page .header-icon {
+    .patterns-page .header-icon,
+    .candlestick-patterns-page .header-icon {
         width: 24px;
         height: 24px;
     }
     
-    .patterns-page .page-header h2 {
+    .patterns-page .page-header h2,
+    .candlestick-patterns-page .page-header h2 {
         font-size: var(--font-2xl);
+    }
+    
+    .patterns-page .page-header p,
+    .candlestick-patterns-page .page-header p {
+        font-size: var(--font-base);
     }
     
     .patterns-filter {
         gap: var(--space-2);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding-bottom: var(--space-2);
+        scrollbar-width: none;
+    }
+    
+    .patterns-filter::-webkit-scrollbar {
+        display: none;
     }
     
     .filter-btn {
-        padding: var(--space-2) var(--space-3);
+        padding: var(--space-2) var(--space-4);
         font-size: var(--font-sm);
+        min-width: fit-content;
+        flex-shrink: 0;
+    }
+    
+    .filter-btn svg {
+        width: 16px;
+        height: 16px;
     }
     
     .patterns-grid {
         grid-template-columns: 1fr;
+        gap: var(--space-4);
+    }
+    
+    .pattern-card {
+        padding: var(--space-4);
+        gap: var(--space-3);
     }
     
     .pattern-visual {
         height: 140px;
+        padding: var(--space-3);
+    }
+    
+    .pattern-name {
+        font-size: 0.95rem;
+    }
+    
+    .pattern-description {
+        font-size: 0.8rem;
+        -webkit-line-clamp: 3;
+        line-clamp: 3;
     }
     
     .modal-visual-large {
@@ -5893,25 +5997,77 @@ body.dark-theme .table-wrapper .stocks-table thead th:nth-child(3) {
     .pattern-modal-content {
         gap: var(--space-4);
     }
+    
+    .section-header {
+        margin-bottom: var(--space-4);
+    }
+    
+    .pattern-section {
+        margin-bottom: var(--space-6);
+    }
 }
 
 @media (max-width: 480px) {
-    .patterns-page .page-header h2 {
+    .patterns-page .page-header h2,
+    .candlestick-patterns-page .page-header h2 {
         font-size: var(--font-xl);
+    }
+    
+    .patterns-page .page-header p,
+    .candlestick-patterns-page .page-header p {
+        font-size: var(--font-sm);
     }
     
     .pattern-header {
         flex-direction: column;
         align-items: flex-start;
+        gap: var(--space-2);
     }
     
     .pattern-badge {
         align-self: flex-start;
+        padding: 3px var(--space-2);
+        font-size: 0.6rem;
+    }
+    
+    .pattern-name {
+        font-size: 0.9rem;
+    }
+    
+    .pattern-visual {
+        height: 120px;
+    }
+    
+    .pattern-card {
+        padding: var(--space-3);
+    }
+    
+    .patterns-grid {
+        gap: var(--space-3);
+    }
+    
+    .filter-btn {
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.7rem;
+    }
+    
+    .pattern-reliability {
+        flex-wrap: wrap;
+        gap: var(--space-1);
+    }
+    
+    .reliability-value {
+        font-size: 0.7rem;
+        padding: 2px var(--space-2);
     }
     
     .modal-header-section {
         flex-direction: column;
         align-items: flex-start;
+    }
+    
+    .section-title {
+        font-size: var(--font-lg);
     }
 }
 
@@ -5963,5 +6119,106 @@ body.dark-theme .stocks-table--screener td,
 body.dark-theme .table-wrapper .stocks-table td,
 body.dark-theme .modal-content .stocks-table td {
     color: var(--text) !important;
+}
+
+/* ============================================
+   CANDLESTICK PATTERNS PAGE STYLES
+   ============================================ */
+
+.candlestick-patterns-page {
+    width: 100%;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.candlestick-patterns-page .page-header {
+    margin-bottom: var(--space-8);
+}
+
+.candlestick-patterns-page .header-content-wrapper {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.candlestick-patterns-page .header-icon-wrapper {
+    width: 56px;
+    height: 56px;
+    background: var(--gradient-accent);
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow-lg);
+}
+
+.candlestick-patterns-page .header-icon {
+    width: 32px;
+    height: 32px;
+    color: white;
+}
+
+.candlestick-patterns-page .page-header h2 {
+    font-size: var(--font-3xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 var(--space-2) 0;
+}
+
+.candlestick-patterns-page .page-header p {
+    font-size: var(--font-lg);
+    color: var(--text-secondary);
+    margin: 0;
+}
+
+/* Candlestick Pattern Sections */
+.candlestick-patterns-page .pattern-section {
+    margin-bottom: var(--space-8);
+}
+
+.candlestick-patterns-page .section-title.warning {
+    color: var(--warning);
+}
+
+/* Additional mobile optimizations for touch interactions */
+@media (hover: none) and (pointer: coarse) {
+    .pattern-card {
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .filter-btn {
+        -webkit-tap-highlight-color: transparent;
+        min-height: 44px;
+    }
+    
+    .pattern-card:active {
+        transform: scale(0.98);
+    }
+    
+    .filter-btn:active {
+        transform: scale(0.95);
+    }
+}
+
+/* Ensure proper spacing on very small screens */
+@media (max-width: 360px) {
+    .patterns-page,
+    .candlestick-patterns-page {
+        padding: 0 var(--space-2);
+    }
+    
+    .pattern-card {
+        padding: var(--space-3);
+    }
+    
+    .patterns-grid {
+        gap: var(--space-2);
+    }
+    
+    .filter-btn {
+        padding: var(--space-2);
+        font-size: 0.65rem;
+    }
 }
 

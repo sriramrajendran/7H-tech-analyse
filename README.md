@@ -1,4 +1,4 @@
-# 📈 BeaconOfTech Tech & Analytics Platform
+# 📈 BeaconOfTech Tech hub & Analytics Platform
 
 ![BeaconOfTech ](doc/readme.png)
 

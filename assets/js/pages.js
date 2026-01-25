@@ -17,9 +17,11 @@ class PageManager {
         this.tutorialsModule = new TutorialsModule();
         this.projectsModule = new ProjectsModule();
         this.patternsModule = new PatternsModule();
+        this.candlestickPatternsModule = new CandlestickPatternsModule();
         
         // Set global reference for patterns module (needed for onclick handlers)
         window.patternsModule = this.patternsModule;
+        window.candlestickPatternsModule = this.candlestickPatternsModule;
         
         console.log('PageManager: Modules initialized');
     }
@@ -311,7 +313,7 @@ class PageManager {
         
         // Control market data visibility based on section
         if (typeof marketDataService !== 'undefined') {
-            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'patterns', 'etf'];
+            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'patterns', 'candlestick-patterns', 'etf'];
             const marketsPages = ['us-stocks', 'crypto'];
             const techPages = ['tech-blog', 'tech-tutorials', 'tech-projects'];
             
@@ -370,7 +372,7 @@ class PageManager {
         
         if (techParent && analyticsParent && marketsParent) {
             const techPages = ['tech-blog', 'tech-tutorials', 'tech-projects'];
-            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'patterns', 'etf'];
+            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'patterns', 'candlestick-patterns', 'etf'];
             const marketsPages = ['us-stocks', 'crypto'];
             
             // Collapse all sections first
@@ -422,6 +424,9 @@ class PageManager {
                 break;
             case 'patterns':
                 content = this.patternsModule.generatePatternsContent();
+                break;
+            case 'candlestick-patterns':
+                content = this.candlestickPatternsModule.generateCandlestickPatternsContent();
                 break;
             case 'us-stocks':
                 content = this.generateUSStocksContent();
@@ -1022,6 +1027,16 @@ class PageManager {
             this.patternsModule.attachEventListeners();
             
             // Reinitialize Lucide icons for patterns page
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+        
+        // Attach candlestick patterns-specific event listeners
+        if (pageType === 'candlestick-patterns' && this.candlestickPatternsModule) {
+            this.candlestickPatternsModule.initializeFilters();
+            
+            // Reinitialize Lucide icons for candlestick patterns page
             if (typeof lucide !== 'undefined') {
                 lucide.createIcons();
             }
