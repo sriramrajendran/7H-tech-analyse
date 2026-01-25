@@ -4,7 +4,7 @@ class AuthorModule {
         this.authorData = {
             name: "Sriramprabhu Rajendran",
             title: "Software Engineering Leader & Technology Innovator",
-            experience: "19+ years",
+            experience: "2 decades",
             photo: "assets/images/author-photo.jpg",
             social: {
                 linkedin: "https://www.linkedin.com/in/rsri",
@@ -181,9 +181,6 @@ class AuthorModule {
                 <h4>📧 Get in Touch</h4>
                 <p>Interested in collaboration, have questions about technology leadership, or want to discuss innovative projects? Feel free to reach out!</p>
                 <div class="contact-methods">
-                    <a href="${this.authorData.social.twitter}" target="_blank" class="contact-button">
-                        <span class="button-icon">🐦</span> Follow on Twitter
-                    </a>
                     <a href="${this.authorData.social.linkedin}" target="_blank" class="contact-button">
                         <span class="button-icon">💼</span> Connect on LinkedIn
                     </a>
