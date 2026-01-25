@@ -4,103 +4,205 @@ class PlaybooksModule {
         this.playbooks = [
             {
                 id: 1,
-                title: "Getting Started with React Hooks",
+                title: "The Vibe Coding Guide",
                 difficulty: "Beginner",
-                duration: "45 min",
-                category: "Frontend",
-                description: "Learn the fundamentals of React Hooks and how to use them to build modern React applications.",
-                topics: ["useState", "useEffect", "useContext", "Custom Hooks"],
-                prerequisites: ["Basic JavaScript", "ES6 Features", "HTML/CSS"],
+                duration: "30 min",
+                category: "Development Philosophy",
+                description: "Master the art of intuitive development, flow states, and creative coding practices that make programming feel natural and enjoyable.",
+                topics: ["Vibe Coding", "Flow State", "Intuitive Development", "Creative Programming", "Mindfulness", "Productivity"],
+                prerequisites: ["Basic Programming Knowledge", "Open Mindset", "Willingness to Experiment"],
                 steps: [
                     {
-                        title: "Introduction to React Hooks",
-                        content: "React Hooks are functions that let you use state and other React features in functional components. They were introduced in React 16.8 as a way to use state and lifecycle methods without writing a class.",
-                        code: `import React, { useState } from 'react';
-
-function Counter() {
-    const [count, setCount] = useState(0);
-    
-    return (
-        <div>
-            <p>You clicked {count} times</p>
-            <button onClick={() => setCount(count + 1)}>
-                Click me
-            </button>
-        </div>
-    );
-}`
+                        title: "Understanding Vibe Coding Philosophy",
+                        content: "Vibe coding is about finding your natural rhythm in development. It's the state where code flows effortlessly, problems solve themselves, and time seems to disappear. This approach emphasizes intuition over rigid processes, creativity over convention, and flow over force. The key is understanding your personal coding patterns, recognizing when you're in the zone, and creating environments that foster this state consistently.",
+                        code: `# Vibe Coding Principles:
+# - Trust your intuition and first instincts
+# - Code when you feel inspired, not when you feel obligated
+# - Let problems marinate before diving in
+# - Follow your energy, not just your schedule
+# - Embrace imperfection and iteration
+# - Create a coding sanctuary that feels right
+# - Listen to what the code wants to become`
                     },
                     {
-                        title: "Understanding useState",
-                        content: "The useState Hook lets you add state to functional components. It returns an array with two elements: the current state value and a function to update it.",
-                        code: `const [state, setState] = useState(initialValue);
-
-// Example with object
-const [user, setUser] = useState({
-    name: 'John',
-    age: 30
-});
-
-// Updating state
-setUser(prevUser => ({
-    ...prevUser,
-    age: prevUser.age + 1
-}));`
+                        title: "Creating Your Optimal Coding Environment",
+                        content: "Your physical and digital environment dramatically impacts your coding vibe. The right setup removes friction and lets you enter flow states naturally. Consider lighting, sound, ergonomics, and digital distractions. Some developers thrive with ambient music, others need silence. Some prefer dark themes, others light. The key is personalization - create a space that makes you want to code, not one that makes you feel like you should code.",
+                        code: `# Environment Setup Checklist:
+# - Comfortable seating and proper lighting
+# - Minimal distractions (physical and digital)
+# - Background noise that helps you focus
+# - Tools and shortcuts that feel natural
+# - Code editor theme that pleases your eyes
+# - Snippets and templates that match your style
+# - Time of day when your energy peaks`
                     },
                     {
-                        title: "Using useEffect for Side Effects",
-                        content: "The useEffect Hook lets you perform side effects in functional components. It's similar to componentDidMount, componentDidUpdate, and componentWillUnmount combined.",
-                        code: `import React, { useState, useEffect } from 'react';
-
-function DataFetcher() {
-    const [data, setData] = useState(null);
-    
-    useEffect(() => {
-        fetchData()
-            .then(result => setData(result))
-            .catch(error => console.error(error));
-            
-        // Cleanup function
-        return () => {
-            // cleanup code here
-        };
-    }, [dependency]); // Dependency array
-    
-    return <div>{data ? data : 'Loading...'}</div>;
-}`
+                        title: "Mastering Flow States in Development",
+                        content: "Flow states are the holy grail of vibe coding - those magical periods where you're fully immersed and code pours out naturally. Achieving flow requires the right balance of challenge and skill, clear goals, and immediate feedback. Learn to recognize when you're approaching flow, protect that state fiercely, and understand how to return to it when interrupted. The best code often emerges from these flow periods.",
+                        code: `# Flow State Indicators:
+# - Time distortion (hours feel like minutes)
+# - Self-consciousness disappears
+# - Problem-solving becomes automatic
+# - Code writes itself through you
+# - You feel energized, not drained
+# - Complete focus on the task at hand`
+                    },
+                    {
+                        title: "Sustainable Vibe Coding Practices",
+                        content: "Vibe coding isn't about chaotic bursts followed by burnout. It's about sustainable practices that keep you in the zone consistently. This includes knowing when to push forward and when to rest, maintaining energy through the day, and preventing the common pitfalls that lead to developer fatigue. The goal is a career-long relationship with coding that stays fresh, exciting, and aligned with your natural rhythms.",
+                        code: `# Sustainability Practices:
+# - Honor your natural energy cycles
+# - Take real breaks that actually refresh you
+# - End coding sessions while you still have energy
+# - Celebrate small wins and progress
+# - Maintain work-life harmony
+# - Keep learning and exploring new approaches`
                     }
                 ]
             },
             {
                 id: 2,
-                title: "Building RESTful APIs with Node.js",
+                title: "Building High-Performance gRPC Services",
                 difficulty: "Intermediate",
-                duration: "60 min",
+                duration: "75 min",
                 category: "Backend",
-                description: "Learn how to design and implement RESTful APIs using Node.js, Express, and MongoDB.",
-                topics: ["Express.js", "REST Principles", "MongoDB", "Authentication"],
-                prerequisites: ["JavaScript", "Node.js Basics", "HTTP Protocol"],
+                description: "Master gRPC for building efficient, type-safe microservices with Protocol Buffers, bidirectional streaming, and modern API design patterns.",
+                topics: ["gRPC", "Protocol Buffers", "Microservices", "Streaming", "Node.js", "TypeScript"],
+                prerequisites: ["JavaScript", "Node.js Basics", "API Design", "Basic Networking"],
                 steps: [
                     {
-                        title: "Setting up Express Server",
-                        content: "Express.js is a minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.",
-                        code: `const express = require('express');
-const app = express();
-const PORT = process.env.PORT || 3000;
+                        title: "Understanding gRPC Architecture",
+                        content: "gRPC is a modern RPC framework that uses Protocol Buffers for serialization and HTTP/2 for transport. It provides significant performance improvements over traditional REST APIs, especially for microservices communication. gRPC supports four types of methods: unary, server streaming, client streaming, and bidirectional streaming.",
+                        code: `// gRPC Service Definition (.proto)
+syntax = "proto3";
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+package users;
 
-// Basic route
-app.get('/', (req, res) => {
-    res.json({ message: 'Welcome to our API!' });
+service UserService {
+    rpc GetUser(GetUserRequest) returns (UserResponse);
+    rpc ListUsers(ListUsersRequest) returns (stream UserResponse);
+    rpc CreateUser(stream CreateUserRequest) returns (CreateUserResponse);
+    rpc UserChat(stream ChatMessage) returns (stream ChatMessage);
+}
+
+message GetUserRequest {
+    string user_id = 1;
+}
+
+message UserResponse {
+    string user_id = 1;
+    string name = 2;
+    string email = 3;
+    int64 created_at = 4;
+}`
+                    },
+                    {
+                        title: "Setting up gRPC Server with Node.js",
+                        content: "Implementing a gRPC server in Node.js requires the grpc-js package and compiled Protocol Buffer definitions. The server handles incoming requests, processes business logic, and returns structured responses. Key considerations include error handling, logging, and connection management.",
+                        code: `// gRPC Server Implementation
+const grpc = require('@grpc/grpc-js');
+const protoLoader = require('@grpc/proto-loader');
+
+// Load proto file
+const packageDefinition = protoLoader.loadSync('users.proto');
+const usersProto = grpc.loadPackageDefinition(packageDefinition).users;
+
+// Implement service methods
+class UserService {
+    async getUser(call, callback) {
+        try {
+            const { user_id } = call.request;
+            const user = await findUserById(user_id);
+            
+            if (!user) {
+                callback({
+                    code: grpc.status.NOT_FOUND,
+                    details: 'User not found'
+                });
+                return;
+            }
+            
+            callback(null, user);
+        } catch (error) {
+            callback({
+                code: grpc.status.INTERNAL,
+                details: error.message
+            });
+        }
+    }
+    
+    async listUsers(call) {
+        try {
+            const users = await getAllUsers();
+            
+            for (const user of users) {
+                call.write(user);
+            }
+            
+            call.end();
+        } catch (error) {
+            call.emit('error', {
+                code: grpc.status.INTERNAL,
+                details: error.message
+            });
+        }
+    }
+}
+
+// Create and start server
+const server = new grpc.Server();
+server.addService(usersProto.UserService.service, new UserService(), {
+    interceptors: [loggingInterceptor, authInterceptor]
 });
 
-app.listen(PORT, () => {
-    console.log(\`Server running on port \${PORT}\`);
+server.bindAsync('0.0.0.0:50051', grpc.ServerCredentials.createInsecure(), () => {
+    console.log('gRPC server running on port 50051');
+    server.start();
 });`
                     },
+                    {
+                        title: "Bidirectional Streaming for Real-Time Communication",
+                        content: "Bidirectional streaming is gRPC's most powerful feature, enabling both client and server to send messages simultaneously. This is perfect for real-time applications like chat, live updates, and collaborative tools. The connection remains open, allowing continuous message exchange with low latency.",
+                        code: `// Bidirectional Streaming Chat Implementation
+async function userChat(call) {
+    try {
+        // Handle incoming messages from client
+        call.on('data', (message) => {
+            console.log('Received:', message);
+            
+            // Process message (could involve AI, validation, etc.)
+            const processedMessage = processChatMessage(message);
+            
+            // Send response back to client
+            call.write({
+                id: generateMessageId(),
+                user_id: message.user_id,
+                content: processedMessage.content,
+                timestamp: new Date().toISOString(),
+                is_ai: processedMessage.is_ai
+            });
+        });
+        
+        // Handle client disconnection
+        call.on('end', () => {
+            console.log('Client disconnected');
+        });
+        
+        // Handle errors
+        call.on('error', (error) => {
+            console.error('Stream error:', error);
+        });
+        
+    } catch (error) {
+        call.emit('error', {
+            code: grpc.status.INTERNAL,
+            details: error.message
+        });
+    }
+}`
+                    }
+                ]
+            },
                     {
                         title: "Creating RESTful Routes",
                         content: "RESTful APIs use HTTP methods to perform CRUD operations. Here's how to implement standard REST routes.",

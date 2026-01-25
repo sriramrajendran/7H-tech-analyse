@@ -23,6 +23,8 @@ class PageManager {
         window.patternsModule = this.patternsModule;
         window.candlestickPatternsModule = this.candlestickPatternsModule;
         window.blogModule = this.blogModule;
+        window.playbooksModule = this.playbooksModule;
+        window.projectsModule = this.projectsModule;
         
         console.log('PageManager: Modules initialized');
     }
