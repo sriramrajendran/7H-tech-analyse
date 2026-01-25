@@ -1,8 +1,12 @@
-# 📈 BeaconOfTech Stock Analyzer
+# 📈 BeaconOfTech Tech & Stock Platform
 
 ![BeaconOfTech Stock Analyzer](doc/readme.png)
 
-A **static web application** by **BeaconOfTech** for AI-powered stock analysis that runs entirely on GitHub Pages. Analyze stocks with technical indicators, get BUY/SELL/HOLD recommendations, and make informed investment decisions - all in your browser with no backend required.
+A **comprehensive static web application** by **BeaconOfTech** for technology insights and AI-powered stock analysis that runs entirely on GitHub Pages. Explore tech blogs, tutorials, projects, and analyze stocks with technical indicators to get BUY/SELL/HOLD recommendations - all in your browser with no backend required.
+
+## 👨‍💻 **Author**
+
+**Sriramprabhu Rajendran**
 
 ## 🌐 **Live Demo**
 
@@ -262,9 +266,11 @@ The following features are not available in the GitHub Pages version:
 - **Documentation:** This README covers all usage information
 - **Live Demo:** Try the GitHub Pages version instantly
 
+
+---
+
 ## 📜 **License**
 
 This project is provided as-is for educational purposes.
 
-**🚀 Ready to analyze stocks with BeaconOfTech?** Visit the GitHub Pages site or run locally to start your investment research today!
-
+**🚀 Ready to explore tech and analyze stocks with BeaconOfTech?** Visit the GitHub Pages site or run locally to start your journey today!

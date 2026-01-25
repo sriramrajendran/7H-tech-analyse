@@ -3,7 +3,8 @@ Framework:
 - TO have this app working in github pages without any backend, feel free to go for any javascript frameworks like node.js or any other. 
 - GIven python cannot be used to run in github pages being self sufficient, use any javascript framework that can run in github pages which is easily maintainable.
 
-UI:
+##UI:
+- Beacon of tech - make a logo which looks so professional and modern. Leverage the logo in multiple places, make it look professional, set the size as appropriate for web and mobile.
 - Make it a solid professional site which is equally good on mobile and desktop, use the themes so it looks modern and professional.
 - Left Menu with collapsible parent items for Technology and Stocks sections
 - Top header section which freezes even if we scroll vertically
@@ -22,6 +23,33 @@ UI:
 - While clicking on any menu items should collapse the other ones. And clocking on parent menu should open the children menu items. Example: Clicking on "Tech" should open the children Menu and Close the others
 - Also clocking on headers in top menu should load the home page.
 - ✅ **Enhanced navigation**: Clicking "Beacon" brand text in sidebar loads home page, clicking "beaconoftech.com" in footer loads home page
+- **✅ **Landing page optimization**: App now loads tech blog (home page) on startup instead of stock pages
+- **✅ **Progressive data loading**: Stock analysis tables hidden until "Analyze" button is clicked for cleaner interface
+- **✅ **Session storage caching**: Stock symbols persist in user session for portfolio and watchlist pages
+- **✅ **Navigation consolidation**: Removed conflicting DOM listeners, unified page initialization
+- **✅ **Debugging infrastructure**: Added comprehensive console logging for troubleshooting
+- **✅ **Enhanced interactivity**: Clickable brand text and footer links for home navigation
+- Professional look for the side menu: make the left menu look more professional
+
+### **� Advanced Modal System:**
+- **Side-by-side layout**: Fundamental data (including price performance) and technical data columns
+- **Full-width recommendations**: Technical recommendations section spanning both columns
+- **Enhanced data display**: Realistic fundamental metrics (Market Cap, P/E, EPS, Volume)
+- **Professional styling**: Color-coded sections with hover effects
+
+### **📊 Enhanced Table System:**
+- **Clickable rows**: Entire row clickable to open modal (removed Details column)
+- **Fixed layout**: No overlapping headers with horizontal scrolling
+- **15 columns**: Rank, Symbol, Price, 1D/1W/1M/6M/1Y changes, RSI, 5 pattern columns, Recommendation, Score
+- **Responsive design**: Proper column widths and mobile adaptation
+
+### **🎨 UI/UX Improvements:**
+- **Modern forms**: Professional styling across all pages with proper alignment
+- **Visual feedback**: Hover effects, transitions, and micro-interactions
+- **Pattern badges**: Visual indicators for VCP, divergences, crossovers, breakouts
+- **Color coding**: Consistent theme with semantic color usage
+- **Professional branding**: Custom SVG beacon logo with radiating light design, simplified sidebar header (logo + "Beacon"), clean main header ("Stock Analyzer"), mobile-responsive logo display
+
 
 Functional:
 - refer to the file @doc/functionality.md for detailed functionality specification
@@ -33,9 +61,12 @@ Functional:
 - ✅ **Dynamic navigation**: Section-based menu expansion and active state management
 - ✅ **Interactive headers**: Clickable header, brand text, and footer links for home navigation
 - ✅ **Mutual exclusion**: Automatic collapsing of other sections when parent menu is clicked
+- ✅ **Session-based persistence**: User stock symbols cached in browser session storage
+- ✅ **Progressive disclosure**: Stock analysis tables only shown after user action
 
 Non functional:
 - Ensure the app is fully functional and all features work as expected.
+- ENsure the app is modular, to add data or pages/blog content for future.. example: Author section has a seperate file / module.
 - COnsistency - ensure the flow works accuratelt per market data. Example: refreshing the page during off market hrs should not change dara randomly.
 - Ensure the app is responsive and works on all devices.
 - Ensure the app is accessible and works on all browsers.
@@ -88,25 +119,6 @@ Running app locally:
 - **Contact Methods**: Direct email and professional networking connections
 - **Responsive Design**: Mobile-optimized layout with adaptive content sections
 - **Standalone Navigation**: Independent menu item that collapses other sections when selected
-
-### **� Advanced Modal System:**
-- **Side-by-side layout**: Fundamental data (including price performance) and technical data columns
-- **Full-width recommendations**: Technical recommendations section spanning both columns
-- **Enhanced data display**: Realistic fundamental metrics (Market Cap, P/E, EPS, Volume)
-- **Professional styling**: Color-coded sections with hover effects
-
-### **📊 Enhanced Table System:**
-- **Clickable rows**: Entire row clickable to open modal (removed Details column)
-- **Fixed layout**: No overlapping headers with horizontal scrolling
-- **15 columns**: Rank, Symbol, Price, 1D/1W/1M/6M/1Y changes, RSI, 5 pattern columns, Recommendation, Score
-- **Responsive design**: Proper column widths and mobile adaptation
-
-### **🎨 UI/UX Improvements:**
-- **Modern forms**: Professional styling across all pages with proper alignment
-- **Visual feedback**: Hover effects, transitions, and micro-interactions
-- **Pattern badges**: Visual indicators for VCP, divergences, crossovers, breakouts
-- **Color coding**: Consistent theme with semantic color usage
-- **Professional branding**: Custom SVG beacon logo with radiating light design, simplified sidebar header (logo + "Beacon"), clean main header ("Stock Analyzer"), mobile-responsive logo display
 
 ### **🔧 Technical Enhancements:**
 - **Pattern detection**: Advanced algorithms for VCP, RSI/MACD divergence, crossovers

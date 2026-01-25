@@ -1,8 +1,12 @@
 // Main JavaScript for GitHub Pages version
 // Initialize page
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('Main GitHub: DOMContentLoaded fired');
+    
     // Load page manager
     if (typeof pageManager !== 'undefined') {
+        console.log('Main GitHub: pageManager found, loading tech-blog');
+        
         // Set up navigation
         document.querySelectorAll('.nav-link').forEach(link => {
             link.addEventListener('click', (e) => {
@@ -12,8 +16,15 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
         
-        // Load default page (portfolio)
-        pageManager.loadPage('portfolio');
+        // Load default page (tech blog)
+        pageManager.loadPage('tech-blog');
+        
+        // Ensure global stock analyzer is available
+        if (!window.stockAnalyzer) {
+            window.stockAnalyzer = new StockAnalyzer('AAPL');
+        }
+    } else {
+        console.error('Main GitHub: pageManager not found!');
     }
 });
 
@@ -454,15 +465,4 @@ function getRecommendationClass(recommendation) {
 }
 
 // Form event handlers - Now handled by PageManager.attachEventListeners()
-document.addEventListener('DOMContentLoaded', () => {
-    // Initialize page manager
-    pageManager.loadPage('portfolio');
-    
-    // Ensure global stock analyzer is available
-    if (!window.stockAnalyzer) {
-        window.stockAnalyzer = new StockAnalyzer('AAPL');
-    }
-    
-    // Navigation is handled by pageManager.loadPage()
-    // Form events are handled by PageManager.attachEventListeners()
-});
+// Note: Page initialization is handled in the DOMContentLoaded listener above

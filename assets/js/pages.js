@@ -1,10 +1,48 @@
 // Page Manager - Handles dynamic content loading and default stocks
 class PageManager {
     constructor() {
+        console.log('PageManager: Constructor called');
         this.currentPage = 'tech-blog'; // Start with tech blog as landing page
         this.config = null;
+        
+        // Initialize modular components
+        this.initializeModules();
+        
         this.loadConfig();
         this.setupCollapsibleMenus();
+        this.initializeSessionStorage();
+        console.log('PageManager: Constructor completed');
+    }
+
+    initializeModules() {
+        // Initialize all modular components
+        this.authorModule = new AuthorModule();
+        this.blogModule = new BlogModule();
+        this.tutorialsModule = new TutorialsModule();
+        this.projectsModule = new ProjectsModule();
+        
+        console.log('PageManager: Modules initialized');
+    }
+
+    initializeSessionStorage() {
+        // Initialize session storage for stock symbols if not already present
+        if (!sessionStorage.getItem('portfolioSymbols')) {
+            sessionStorage.setItem('portfolioSymbols', JSON.stringify(this.getDefaultStocks('portfolio')));
+        }
+        if (!sessionStorage.getItem('watchlistSymbols')) {
+            sessionStorage.setItem('watchlistSymbols', JSON.stringify(this.getDefaultStocks('watchlist')));
+        }
+    }
+
+    saveSymbolsToSession(pageType, symbols) {
+        const storageKey = pageType === 'portfolio' ? 'portfolioSymbols' : 'watchlistSymbols';
+        sessionStorage.setItem(storageKey, JSON.stringify(symbols));
+    }
+
+    loadSymbolsFromSession(pageType) {
+        const storageKey = pageType === 'portfolio' ? 'portfolioSymbols' : 'watchlistSymbols';
+        const stored = sessionStorage.getItem(storageKey);
+        return stored ? JSON.parse(stored) : this.getDefaultStocks(pageType);
     }
 
     setupCollapsibleMenus() {
@@ -226,6 +264,7 @@ class PageManager {
     }
 
     loadPage(pageType) {
+        console.log(`PageManager: loadPage called for ${pageType}`);
         this.currentPage = pageType;
         const mainContent = document.getElementById('main-content');
         
@@ -283,13 +322,13 @@ class PageManager {
         
         switch(pageType) {
             case 'tech-blog':
-                content = this.generateTechBlogContent();
+                content = this.blogModule.generateTechBlogContent();
                 break;
             case 'tech-tutorials':
-                content = this.generateTechTutorialsContent();
+                content = this.tutorialsModule.generateTutorialsContent();
                 break;
             case 'tech-projects':
-                content = this.generateTechProjectsContent();
+                content = this.projectsModule.generateProjectsContent();
                 break;
             case 'portfolio':
                 content = this.generatePortfolioContent();
@@ -304,7 +343,7 @@ class PageManager {
                 content = this.generateETFContent();
                 break;
             case 'author':
-                content = this.generateAuthorContent();
+                content = this.authorModule.generateAuthorContent();
                 break;
             default:
                 content = '<div class="card"><h2>Page not found</h2></div>';
@@ -351,243 +390,12 @@ class PageManager {
                     <p class="blog-excerpt">Designing applications for the cloud requires a different mindset. Discover the principles of cloud-native architecture and how to implement them effectively...</p>
                     <a href="#" class="blog-read-more">Read More →</a>
                 </article>
-                
-                <article class="blog-card">
-                    <div class="blog-meta">
-                        <span class="blog-date">January 10, 2026</span>
-                        <span class="blog-category">Data Science</span>
-                    </div>
-                    <h3 class="blog-title">Data Visualization Techniques for Modern Applications</h3>
-                    <p class="blog-excerpt">Effective data visualization is crucial for making complex information accessible. Learn about the latest techniques and tools for creating compelling visualizations...</p>
-                    <a href="#" class="blog-read-more">Read More →</a>
-                </article>
-            </div>
-        `;
-    }
-    
-    generateTechTutorialsContent() {
-        return `
-            <div class="page-header">
-                <h2>Technical Tutorials</h2>
-                <p>Step-by-step guides and tutorials for modern technologies and programming languages.</p>
-            </div>
-            
-            <div class="tutorials-grid">
-                <div class="tutorial-card">
-                    <div class="tutorial-header">
-                        <span class="tutorial-difficulty intermediate">Intermediate</span>
-                        <span class="tutorial-duration">45 min</span>
-                    </div>
-                    <h3 class="tutorial-title">React Hooks Deep Dive</h3>
-                    <p class="tutorial-description">Master advanced React Hooks patterns and build custom hooks for reusable state logic.</p>
-                    <div class="tutorial-tags">
-                        <span class="tag">React</span>
-                        <span class="tag">JavaScript</span>
-                        <span class="tag">Hooks</span>
-                    </div>
-                    <a href="#" class="tutorial-start">Start Tutorial →</a>
-                </div>
-                
-                <div class="tutorial-card">
-                    <div class="tutorial-header">
-                        <span class="tutorial-difficulty beginner">Beginner</span>
-                        <span class="tutorial-duration">30 min</span>
-                    </div>
-                    <h3 class="tutorial-title">Getting Started with Docker</h3>
-                    <p class="tutorial-description">Learn containerization basics and how to deploy applications using Docker containers.</p>
-                    <div class="tutorial-tags">
-                        <span class="tag">Docker</span>
-                        <span class="tag">DevOps</span>
-                        <span class="tag">Containers</span>
-                    </div>
-                    <a href="#" class="tutorial-start">Start Tutorial →</a>
-                </div>
-                
-                <div class="tutorial-card">
-                    <div class="tutorial-header">
-                        <span class="tutorial-difficulty advanced">Advanced</span>
-                        <span class="tutorial-duration">60 min</span>
-                    </div>
-                    <h3 class="tutorial-title">Machine Learning with Python</h3>
-                    <p class="tutorial-description">Build your first ML model using Python, scikit-learn, and popular ML algorithms.</p>
-                    <div class="tutorial-tags">
-                        <span class="tag">Python</span>
-                        <span class="tag">Machine Learning</span>
-                        <span class="tag">AI</span>
-                    </div>
-                    <a href="#" class="tutorial-start">Start Tutorial →</a>
-                </div>
-            </div>
-        `;
-    }
-    
-    generateTechProjectsContent() {
-        return `
-            <div class="page-header">
-                <h2>Featured Projects</h2>
-                <p>Open-source projects and technical experiments showcasing innovative solutions.</p>
-            </div>
-            
-            <div class="projects-grid">
-                <div class="project-card">
-                    <div class="project-status active">Active</div>
-                    <h3 class="project-title">Stock Analysis Platform</h3>
-                    <p class="project-description">AI-powered stock analysis tool with technical indicators, portfolio management, and real-time market data integration.</p>
-                    <div class="project-tech">
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">Python</span>
-                        <span class="tech-tag">React</span>
-                        <span class="tech-tag">TensorFlow</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="#" class="project-link">GitHub</a>
-                        <a href="#" class="project-link">Live Demo</a>
-                    </div>
-                </div>
-                
-                <div class="project-card">
-                    <div class="project-status completed">Completed</div>
-                    <h3 class="project-title">Cloud Infrastructure Automation</h3>
-                    <p class="project-description">Infrastructure as Code solution for automated cloud deployment and management across multiple providers.</p>
-                    <div class="project-tech">
-                        <span class="tech-tag">Terraform</span>
-                        <span class="tech-tag">AWS</span>
-                        <span class="tech-tag">Kubernetes</span>
-                        <span class="tech-tag">Ansible</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="#" class="project-link">GitHub</a>
-                        <a href="#" class="project-link">Documentation</a>
-                    </div>
-                </div>
-                
-                <div class="project-card">
-                    <div class="project-status planning">Planning</div>
-                    <h3 class="project-title">Real-time Collaboration Tool</h3>
-                    <p class="project-description">WebRTC-based real-time collaboration platform with video conferencing, screen sharing, and collaborative editing.</p>
-                    <div class="project-tech">
-                        <span class="tech-tag">WebRTC</span>
-                        <span class="tech-tag">Node.js</span>
-                        <span class="tech-tag">Socket.io</span>
-                        <span class="tech-tag">WebSockets</span>
-                    </div>
-                    <div class="project-links">
-                        <a href="#" class="project-link">Concept</a>
-                        <a href="#" class="project-link">Contributors Wanted</a>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-    
-    generateAuthorContent() {
-        return `
-            <div class="page-header">
-                <h2>About the Author</h2>
-                <p>Learn more about the creator behind Beacon of Tech</p>
-            </div>
-            
-            <div class="author-container">
-                <div class="author-profile">
-                    <div class="author-avatar">
-                        <div class="avatar-placeholder">👤</div>
-                    </div>
-                    <div class="author-info">
-                        <h3>Sriram Rajendran</h3>
-                        <p class="author-title">Technology Enthusiast & Investment Analyst</p>
-                        <div class="author-links">
-                            <a href="https://twitter.com/rajen.sriram" target="_blank" class="social-link">
-                                <span class="social-icon">🐦</span> @rajen.sriram
-                            </a>
-                            <a href="https://github.com/sriramrajendran" target="_blank" class="social-link">
-                                <span class="social-icon">🐙</span> GitHub
-                            </a>
-                            <a href="https://beaconoftech.com" target="_blank" class="social-link">
-                                <span class="social-icon">🌐</span> beaconoftech.com
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="author-content">
-                    <div class="author-section">
-                        <h4>🚀 Technology Background</h4>
-                        <p>Passionate developer with extensive experience in building scalable web applications, cloud infrastructure, and data-driven solutions. Specialized in modern JavaScript frameworks, cloud-native architecture, and AI/ML integration.</p>
-                    </div>
-                    
-                    <div class="author-section">
-                        <h4>📈 Investment Expertise</h4>
-                        <p>Self-taught investment analyst with a focus on technical analysis, quantitative strategies, and algorithmic trading. Developed sophisticated stock analysis tools combining traditional technical indicators with modern pattern recognition algorithms.</p>
-                    </div>
-                    
-                    <div class="author-section">
-                        <h4>💡 Project Vision</h4>
-                        <p>Beacon of Tech represents the fusion of technology and finance - a platform where cutting-edge development meets intelligent investment analysis. The goal is to democratize advanced stock analysis tools while sharing knowledge about modern technology trends.</p>
-                    </div>
-                    
-                    <div class="author-section">
-                        <h4>🛠️ Skills & Technologies</h4>
-                        <div class="skills-grid">
-                            <div class="skill-category">
-                                <h5>Frontend</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">JavaScript</span>
-                                    <span class="skill-tag">React</span>
-                                    <span class="skill-tag">Vue.js</span>
-                                    <span class="skill-tag">CSS3</span>
-                                </div>
-                            </div>
-                            <div class="skill-category">
-                                <h5>Backend</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">Node.js</span>
-                                    <span class="skill-tag">Python</span>
-                                    <span class="skill-tag">PostgreSQL</span>
-                                    <span class="skill-tag">MongoDB</span>
-                                </div>
-                            </div>
-                            <div class="skill-category">
-                                <h5>Cloud & DevOps</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">AWS</span>
-                                    <span class="skill-tag">Docker</span>
-                                    <span class="skill-tag">Kubernetes</span>
-                                    <span class="skill-tag">CI/CD</span>
-                                </div>
-                            </div>
-                            <div class="skill-category">
-                                <h5>Data & AI</h5>
-                                <div class="skill-tags">
-                                    <span class="skill-tag">TensorFlow</span>
-                                    <span class="skill-tag">Pandas</span>
-                                    <span class="skill-tag">NumPy</span>
-                                    <span class="skill-tag">Scikit-learn</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="author-section">
-                        <h4>📧 Get in Touch</h4>
-                        <p>Interested in collaboration, have questions about the projects, or want to discuss technology and investing? Feel free to reach out!</p>
-                        <div class="contact-methods">
-                            <a href="mailto:contact@beaconoftech.com" class="contact-method">
-                                <span class="contact-icon">📧</span>
-                                contact@beaconoftech.com
-                            </a>
-                            <a href="https://linkedin.com/in/sriramrajendran" target="_blank" class="contact-method">
-                                <span class="contact-icon">💼</span>
-                                LinkedIn Profile
-                            </a>
-                        </div>
-                    </div>
-                </div>
             </div>
         `;
     }
     
     generatePortfolioContent() {
-        const defaultStocks = this.getDefaultStocks('portfolio');
+        const defaultStocks = this.loadSymbolsFromSession('portfolio');
         const defaultPeriod = this.getDefaultPeriod('portfolio');
         const defaultTopN = this.getDefaultTopN('portfolio');
         
@@ -631,7 +439,7 @@ class PageManager {
                 </form>
             </div>
             
-            <div class="table-container">
+            <div class="table-container" id="portfolio-table-container" style="display: none;">
                 <div class="table-controls">
                     <input type="text" id="table-search" placeholder="Search stocks..." class="search-input">
                     <select id="table-filter" class="filter-select">
@@ -674,7 +482,7 @@ class PageManager {
     }
     
     generateWatchlistContent() {
-        const defaultStocks = this.getDefaultStocks('watchlist');
+        const defaultStocks = this.loadSymbolsFromSession('watchlist');
         const defaultPeriod = this.getDefaultPeriod('watchlist');
         const defaultTopN = this.getDefaultTopN('watchlist');
         
@@ -718,7 +526,7 @@ class PageManager {
                 </form>
             </div>
             
-            <div class="table-container">
+            <div class="table-container" id="watchlist-table-container" style="display: none;">
                 <div class="table-controls">
                     <input type="text" id="table-search" placeholder="Search stocks..." class="search-input">
                     <select id="table-filter" class="filter-select">
@@ -800,7 +608,7 @@ class PageManager {
                 </form>
             </div>
             
-            <div class="table-container">
+            <div class="table-container" id="us-stocks-table-container" style="display: none;">
                 <div class="table-controls">
                     <input type="text" id="table-search" placeholder="Search stocks..." class="search-input">
                     <select id="table-filter" class="filter-select">
@@ -882,7 +690,7 @@ class PageManager {
                 </form>
             </div>
             
-            <div class="table-container">
+            <div class="table-container" id="etf-table-container" style="display: none;">
                 <div class="table-controls">
                     <input type="text" id="table-search" placeholder="Search ETFs..." class="search-input">
                     <select id="table-filter" class="filter-select">
@@ -945,12 +753,23 @@ class PageManager {
         const periodSelect = document.getElementById('period');
         const topNSelect = document.getElementById('top_n');
         
+        // Show the table container when analyze is clicked
+        const tableContainer = document.getElementById(`${pageType}-table-container`);
+        if (tableContainer) {
+            tableContainer.style.display = 'block';
+        }
+        
         // For US Stocks and ETF pages, symbols come from config
         let symbols = '';
         if (pageType === 'us-stocks' || pageType === 'etf') {
             symbols = this.getDefaultStocks(pageType === 'us-stocks' ? 'market' : 'etf').join(', ');
         } else if (symbolsInput) {
             symbols = symbolsInput.value.trim();
+            // Save symbols to session storage for portfolio and watchlist
+            if (pageType === 'portfolio' || pageType === 'watchlist') {
+                const symbolArray = symbols.split(/[\s,]+/).filter(s => s.trim()).map(s => s.toUpperCase());
+                this.saveSymbolsToSession(pageType, symbolArray);
+            }
         }
         
         if (!symbols) {
@@ -1586,4 +1405,6 @@ class PageManager {
 }
 
 // Global page manager instance
+console.log('Pages.js: Creating pageManager instance');
 const pageManager = new PageManager();
+console.log('Pages.js: pageManager instance created');
