@@ -274,6 +274,835 @@ CMD ["node", "server.js"]`
 }`
                     }
                 ]
+            },
+            {
+                id: 5,
+                title: "Building High-Performance APIs with gRPC and Node.js",
+                difficulty: "Intermediate",
+                duration: "60 min",
+                category: "API Development",
+                description: "Master gRPC architecture, Protocol Buffers, and build production-ready high-performance APIs with Node.js, including advanced patterns and deployment strategies.",
+                topics: ["gRPC", "Protocol Buffers", "Node.js", "Microservices", "Streaming", "Performance"],
+                prerequisites: ["JavaScript", "Node.js Basics", "API Concepts", "Microservices Fundamentals"],
+                steps: [
+                    {
+                        title: "Understanding gRPC Architecture",
+                        content: "gRPC is a high-performance, open-source universal RPC framework that uses HTTP/2 for transport, Protocol Buffers as the interface definition language, and provides features such as authentication, load balancing, and more. Understanding the architecture is crucial for building efficient microservices that can handle high loads with low latency.",
+                        code: `// gRPC Architecture Components:
+// - Protocol Buffers: Schema definition and serialization
+// - Service Definitions: Interface contracts
+// - Streaming Types: Unary, Server Streaming, Client Streaming, Bidirectional
+// - HTTP/2 Transport: Multiplexed connections
+// - Interceptors: Middleware for cross-cutting concerns
+
+// Protocol Buffer Service Definition
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc GetUser(GetUserRequest) returns (UserResponse);
+  rpc ListUsers(ListUsersRequest) returns (stream UserResponse);
+  rpc CreateUser(stream CreateUserRequest) returns (CreateUserResponse);
+  rpc BidirectionalChat(stream ChatMessage) returns (stream ChatMessage);
+}
+
+message GetUserRequest {
+  string user_id = 1;
+}
+
+message UserResponse {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  int64 created_at = 4;
+}`
+                    },
+                    {
+                        title: "Setting up gRPC Server with Node.js",
+                        content: "Building a production-ready gRPC server requires proper error handling, logging, health checks, and graceful shutdown. The server should be structured to handle multiple service definitions, implement proper middleware, and provide monitoring capabilities for production environments.",
+                        code: `// gRPC Server Implementation
+const grpc = require('@grpc/grpc-js');
+const protoLoader = require('@grpc/proto-loader');
+const path = require('path');
+
+// Load protocol buffer definitions
+const PROTO_PATH = path.join(__dirname, 'user.proto');
+const packageDefinition = protoLoader.loadSync(PROTO_PATH, {
+  keepCase: true,
+  longs: String,
+  enums: String,
+  defaults: true,
+  oneofs: true
+});
+
+const userProto = grpc.loadPackageDefinition(packageDefinition).user;
+
+// Service implementation
+class UserServiceImpl {
+  async getUser(call, callback) {
+    try {
+      const { user_id } = call.request;
+      
+      // Business logic here
+      const user = await findUserById(user_id);
+      
+      if (!user) {
+        callback({
+          code: grpc.status.NOT_FOUND,
+          details: 'User not found'
+        });
+        return;
+      }
+      
+      callback(null, {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        created_at: user.created_at
+      });
+      
+    } catch (error) {
+      console.error('GetUser error:', error);
+      callback({
+        code: grpc.status.INTERNAL,
+        details: 'Internal server error'
+      });
+    }
+  }
+  
+  async listUsers(call) {
+    try {
+      const { limit = 10, offset = 0 } = call.request;
+      const users = await findUsers({ limit, offset });
+      
+      for (const user of users) {
+        call.write({
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          created_at: user.created_at
+        });
+      }
+      
+      call.end();
+      
+    } catch (error) {
+      console.error('ListUsers error:', error);
+      call.emit('error', {
+        code: grpc.status.INTERNAL,
+        details: 'Internal server error'
+      });
+    }
+  }
+}
+
+// Server setup with health checks
+const server = new grpc.Server();
+
+// Add services
+server.addService(
+  userProto.UserService.service,
+  new UserServiceImpl()
+);
+
+// Health check service
+server.addService(grpc.health.v1.Health.service, {
+  check: (call, callback) => {
+    callback(null, { status: grpc.health.v1.HealthCheckResponse.SERVING });
+  }
+});
+
+// Start server
+const serverAddress = '0.0.0.0:50051';
+server.bindAsync(
+  serverAddress,
+  grpc.ServerCredentials.createInsecure(),
+  (err, port) => {
+    if (err) {
+      console.error('Failed to bind server:', err);
+      return;
+    }
+    
+    console.log(\`gRPC server running on \${serverAddress}\`);
+    server.start();
+    
+    // Graceful shutdown
+    process.on('SIGTERM', () => {
+      console.log('Received SIGTERM, shutting down gracefully');
+      server.forceShutdown();
+    });
+    
+    process.on('SIGINT', () => {
+      console.log('Received SIGINT, shutting down gracefully');
+      server.forceShutdown();
+    });
+  }
+);`
+                    },
+                    {
+                        title: "Building gRPC Client with Connection Management",
+                        content: "A robust gRPC client needs connection pooling, retry mechanisms, circuit breakers, and proper error handling. The client should automatically reconnect on failures, handle load balancing, and provide a clean API for the application layer.",
+                        code: `// gRPC Client with Connection Management
+const grpc = require('@grpc/grpc-js');
+const protoLoader = require('@grpc/proto-loader');
+
+class GrpcClient {
+  constructor(serviceUrl, protoPath, packageName) {
+    this.serviceUrl = serviceUrl;
+    this.packageDefinition = protoLoader.loadSync(protoPath, {
+      keepCase: true,
+      longs: String,
+      enums: String,
+      defaults: true,
+      oneofs: true
+    });
+    
+    this.proto = grpc.loadPackageDefinition(this.packageDefinition)[packageName];
+    this.client = null;
+    this.isConnected = false;
+    this.reconnectAttempts = 0;
+    this.maxReconnectAttempts = 5;
+    this.reconnectDelay = 1000;
+    
+    this.connect();
+  }
+  
+  connect() {
+    try {
+      this.client = new this.proto.UserService(
+        this.serviceUrl,
+        grpc.credentials.createInsecure(),
+        {
+          'grpc.keepalive_time_ms': 30000,
+          'grpc.keepalive_timeout_ms': 5000,
+          'grpc.keepalive_permit_without_calls': true,
+          'grpc.http2.max_pings_without_data': 0,
+          'grpc.http2.min_time_between_pings_ms': 10000,
+          'grpc.http2.min_ping_interval_without_data_ms': 300000
+        }
+      );
+      
+      this.setupEventHandlers();
+      this.isConnected = true;
+      this.reconnectAttempts = 0;
+      
+      console.log('gRPC client connected successfully');
+      
+    } catch (error) {
+      console.error('Failed to connect gRPC client:', error);
+      this.handleConnectionError(error);
+    }
+  }
+  
+  setupEventHandlers() {
+    // Handle connection state changes
+    if (this.client.waitForReady) {
+      this.client.waitForReady(Date.now() + 5000, (error) => {
+        if (error) {
+          console.error('Client ready timeout:', error);
+          this.handleConnectionError(error);
+        } else {
+          console.log('gRPC client is ready');
+        }
+      });
+    }
+  }
+  
+  handleConnectionError(error) {
+    this.isConnected = false;
+    
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnectAttempts++;
+      const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+      
+      console.log(\`Attempting reconnect \${this.reconnectAttempts}/\${this.maxReconnectAttempts} in \${delay}ms\`);
+      
+      setTimeout(() => {
+        this.connect();
+      }, delay);
+      
+    } else {
+      console.error('Max reconnection attempts reached');
+      throw new Error('Failed to connect to gRPC server');
+    }
+  }
+  
+  async getUser(userId) {
+    if (!this.isConnected) {
+      throw new Error('gRPC client not connected');
+    }
+    
+    return new Promise((resolve, reject) => {
+      const deadline = Date.now() + 5000; // 5 second timeout
+      
+      this.client.getUser(
+        { user_id: userId },
+        { deadline: deadline },
+        (error, response) => {
+          if (error) {
+            if (error.code === grpc.status.DEADLINE_EXCEEDED) {
+              reject(new Error('Request timeout'));
+            } else {
+              reject(error);
+            }
+          } else {
+            resolve(response);
+          }
+        }
+      );
+    });
+  }
+  
+  async listUsers(options = {}) {
+    if (!this.isConnected) {
+      throw new Error('gRPC client not connected');
+    }
+    
+    return new Promise((resolve, reject) => {
+      const call = this.client.listUsers(options);
+      const users = [];
+      
+      call.on('data', (user) => {
+        users.push(user);
+      });
+      
+      call.on('end', () => {
+        resolve(users);
+      });
+      
+      call.on('error', (error) => {
+        reject(error);
+      });
+      
+      // Handle timeout
+      setTimeout(() => {
+        call.cancel();
+        reject(new Error('Stream timeout'));
+      }, 30000);
+    });
+  }
+  
+  close() {
+    if (this.client) {
+      grpc.closeClient(this.client);
+      this.isConnected = false;
+      console.log('gRPC client closed');
+    }
+  }
+}
+
+// Usage example
+const client = new GrpcClient(
+  'localhost:50051',
+  './user.proto',
+  'user'
+);
+
+// Health check with circuit breaker
+class CircuitBreaker {
+  constructor(threshold = 5, timeout = 60000) {
+    this.threshold = threshold;
+    this.timeout = timeout;
+    this.failureCount = 0;
+    this.lastFailureTime = null;
+    this.state = 'CLOSED'; // CLOSED, OPEN, HALF_OPEN
+  }
+  
+  async execute(operation) {
+    if (this.state === 'OPEN') {
+      if (Date.now() - this.lastFailureTime > this.timeout) {
+        this.state = 'HALF_OPEN';
+      } else {
+        throw new Error('Circuit breaker is OPEN');
+      }
+    }
+    
+    try {
+      const result = await operation();
+      
+      if (this.state === 'HALF_OPEN') {
+        this.state = 'CLOSED';
+        this.failureCount = 0;
+      }
+      
+      return result;
+      
+    } catch (error) {
+      this.failureCount++;
+      this.lastFailureTime = Date.now();
+      
+      if (this.failureCount >= this.threshold) {
+        this.state = 'OPEN';
+      }
+      
+      throw error;
+    }
+  }
+}
+
+// Circuit breaker usage
+const circuitBreaker = new CircuitBreaker();
+
+async function getUserWithCircuitBreaker(userId) {
+  return circuitBreaker.execute(() => client.getUser(userId));
+}`
+                    },
+                    {
+                        title: "Implementing Advanced gRPC Patterns",
+                        content: "Advanced gRPC patterns include interceptors for authentication and logging, bidirectional streaming for real-time communication, load balancing across multiple service instances, and implementing proper error handling with custom error codes.",
+                        code: `// gRPC Interceptors for Authentication and Logging
+class AuthInterceptor {
+  constructor(jwtSecret) {
+    this.jwtSecret = jwtSecret;
+  }
+  
+  intercept(call, next) {
+    const metadata = call.metadata.get('authorization');
+    
+    if (!metadata || !metadata[0]) {
+      callback({
+        code: grpc.status.UNAUTHENTICATED,
+        details: 'Missing authorization token'
+      });
+      return;
+    }
+    
+    try {
+      const token = metadata[0].replace('Bearer ', '');
+      const decoded = jwt.verify(token, this.jwtSecret);
+      call.request.user = decoded;
+      
+      return next(call);
+      
+    } catch (error) {
+      callback({
+        code: grpc.status.UNAUTHENTICATED,
+        details: 'Invalid token'
+      });
+    }
+  }
+}
+
+class LoggingInterceptor {
+  intercept(call, next) {
+    const start = Date.now();
+    const methodName = call.method.path;
+    
+    console.log(\`[\${new Date().toISOString()}] Starting \${methodName}\`);
+    
+    return next(call).then(response => {
+      const duration = Date.now() - start;
+      console.log(\`[\${new Date().toISOString()}] Completed \${methodName} in \${duration}ms\`);
+      return response;
+    }).catch(error => {
+      const duration = Date.now() - start;
+      console.error(\`[\${new Date().toISOString()}] Failed \${methodName} in \${duration}ms: \${error.message}\`);
+      throw error;
+    });
+  }
+}
+
+// Bidirectional Streaming Implementation
+class ChatService {
+  async bidirectionalChat(call) {
+    call.on('data', (message) => {
+      console.log('Received message:', message);
+      
+      // Process message and send response
+      const response = {
+        id: Date.now().toString(),
+        content: \`Echo: \${message.content}\`,
+        user_id: 'bot',
+        timestamp: Date.now()
+      };
+      
+      call.write(response);
+    });
+    
+    call.on('end', () => {
+      console.log('Chat stream ended');
+      call.end();
+    });
+    
+    call.on('error', (error) => {
+      console.error('Chat stream error:', error);
+    });
+  }
+}
+
+// Load Balancing with DNS
+const dns = require('dns');
+
+class LoadBalancedClient {
+  constructor(serviceName, protoPath, packageName) {
+    this.serviceName = serviceName;
+    this.clients = new Map();
+    this.currentIndex = 0;
+    this.proto = this.loadProto(protoPath, packageName);
+    this.refreshInterval = 30000; // 30 seconds
+    
+    this.startLoadBalancing();
+  }
+  
+  async resolveServiceAddresses() {
+    return new Promise((resolve, reject) => {
+      dns.resolveSrv(this.serviceName, (error, addresses) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(addresses.map(addr => \`\${addr.name}:\${addr.port}\`));
+        }
+      });
+    });
+  }
+  
+  async updateClients() {
+    try {
+      const addresses = await this.resolveServiceAddresses();
+      
+      // Remove clients for addresses that no longer exist
+      for (const [address, client] of this.clients) {
+        if (!addresses.includes(address)) {
+          grpc.closeClient(client);
+          this.clients.delete(address);
+        }
+      }
+      
+      // Add new clients
+      for (const address of addresses) {
+        if (!this.clients.has(address)) {
+          const client = new this.proto.ChatService(
+            address,
+            grpc.credentials.createInsecure()
+          );
+          this.clients.set(address, client);
+        }
+      }
+      
+    } catch (error) {
+      console.error('Failed to update clients:', error);
+    }
+  }
+  
+  startLoadBalancing() {
+    this.updateClients();
+    setInterval(() => this.updateClients(), this.refreshInterval);
+  }
+  
+  getNextClient() {
+    const addresses = Array.from(this.clients.keys());
+    if (addresses.length === 0) {
+      throw new Error('No available service instances');
+    }
+    
+    const address = addresses[this.currentIndex % addresses.length];
+    this.currentIndex++;
+    
+    return this.clients.get(address);
+  }
+  
+  async sendMessage(message) {
+    const client = this.getNextClient();
+    
+    return new Promise((resolve, reject) => {
+      client.sendMessage(message, (error, response) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(response);
+        }
+      });
+    });
+  }
+}
+
+// Custom Error Handling
+class GrpcError extends Error {
+  constructor(code, message, details = {}) {
+    super(message);
+    this.code = code;
+    this.details = details;
+    this.name = 'GrpcError';
+  }
+}
+
+const errorHandler = (error, callback) => {
+  if (error instanceof GrpcError) {
+    callback({
+      code: error.code,
+      details: error.message,
+      metadata: error.details
+    });
+  } else if (error.name === 'ValidationError') {
+    callback({
+      code: grpc.status.INVALID_ARGUMENT,
+      details: error.message
+    });
+  } else if (error.name === 'NotFoundError') {
+    callback({
+      code: grpc.status.NOT_FOUND,
+      details: error.message
+    });
+  } else {
+    console.error('Unexpected error:', error);
+    callback({
+      code: grpc.status.INTERNAL,
+      details: 'Internal server error'
+    });
+  }
+};`
+                    },
+                    {
+                        title: "Production Deployment with Docker and Kubernetes",
+                        content: "Deploying gRPC services to production requires proper containerization, Kubernetes configuration for load balancing and service discovery, monitoring with Prometheus and Grafana, and implementing proper CI/CD pipelines for automated deployments.",
+                        code: `# Dockerfile for gRPC Service
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY . .
+RUN npm run build
+
+# Production stage
+FROM node:18-alpine AS production
+
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S grpcuser -u 1001
+
+WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/protos ./protos
+COPY --from=builder /app/package.json ./package.json
+
+USER grpcuser
+
+EXPOSE 50051
+
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \\
+  CMD node healthcheck.js
+
+CMD ["node", "dist/server.js"]
+
+# Kubernetes Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grpc-service
+  labels:
+    app: grpc-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: grpc-service
+  template:
+    metadata:
+      labels:
+        app: grpc-service
+    spec:
+      containers:
+      - name: grpc-service
+        image: grpc-service:latest
+        ports:
+        - containerPort: 50051
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "50051"
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          exec:
+            command:
+            - node
+            - healthcheck.js
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command:
+            - node
+            - healthcheck.js
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# gRPC Service with HTTP/2 load balancing
+apiVersion: v1
+kind: Service
+metadata:
+  name: grpc-service
+spec:
+  selector:
+    app: grpc-service
+  ports:
+  - port: 50051
+    targetPort: 50051
+    protocol: TCP
+    name: grpc
+  type: ClusterIP
+
+---
+# Ingress for gRPC (requires gRPC-capable ingress controller)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grpc-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
+    nginx.ingress.kubernetes.io/grpc-backend: "true"
+spec:
+  rules:
+  - host: grpc-api.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grpc-service
+            port:
+              number: 50051
+
+# Prometheus Configuration for gRPC Metrics
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+    scrape_configs:
+    - job_name: 'grpc-services'
+      static_configs:
+      - targets: ['grpc-service:50051']
+      metrics_path: /metrics
+      scheme: http
+      grpc:
+        service: "user.UserService"
+        method: "GetUser"
+
+# Grafana Dashboard Configuration
+{
+  "dashboard": {
+    "title": "gRPC Service Metrics",
+    "panels": [
+      {
+        "title": "Request Rate",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "rate(grpc_server_handled_total[5m])",
+            "legendFormat": "{{method}} - {{grpc_code}}"
+          }
+        ]
+      },
+      {
+        "title": "Response Time",
+        "type": "graph",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, rate(grpc_server_handling_seconds_bucket[5m]))",
+            "legendFormat": "95th percentile"
+          }
+        ]
+      },
+      {
+        "title": "Error Rate",
+        "type": "singlestat",
+        "targets": [
+          {
+            "expr": "rate(grpc_server_handled_total{grpc_code!=\"OK\"}[5m]) / rate(grpc_server_handled_total[5m])",
+            "legendFormat": "Error Rate"
+          }
+        ]
+      }
+    ]
+  }
+}
+
+# CI/CD Pipeline (.github/workflows/grpc-deploy.yml)
+name: Deploy gRPC Service
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm test
+    
+    - name: Run integration tests
+      run: npm run test:integration
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build Docker image
+      run: |
+        docker build -t grpc-service:\${{ github.sha }} .
+        docker tag grpc-service:\${{ github.sha }} grpc-service:latest
+    
+    - name: Push to registry
+      if: github.ref == 'refs/heads/main'
+      run: |
+        echo \${{ secrets.DOCKER_PASSWORD }} | docker login -u \${{ secrets.DOCKER_USERNAME }} --password-stdin
+        docker push grpc-service:\${{ github.sha }}
+        docker push grpc-service:latest
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to Kubernetes
+      run: |
+        echo \${{ secrets.KUBECONFIG }} | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+        
+        # Update image in deployment
+        kubectl set image deployment/grpc-service grpc-service=grpc-service:\${{ github.sha }}
+        
+        # Wait for rollout
+        kubectl rollout status deployment/grpc-service
+        
+        # Verify deployment
+        kubectl get pods -l app=grpc-service`
+                    }
+                ]
             }
         ];
     }
