@@ -4397,18 +4397,18 @@ footer {
 }
 
 .playbook-difficulty.beginner {
-    background: #d1fae5;
-    color: #065f46;
+    background: var(--success);
+    color: var(--text-inverse);
 }
 
 .playbook-difficulty.intermediate {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--warning);
+    color: var(--text-inverse);
 }
 
 .playbook-difficulty.advanced {
-    background: #fee2e2;
-    color: #991b1b;
+    background: var(--danger);
+    color: var(--text-inverse);
 }
 
 .card-content {
@@ -4458,9 +4458,9 @@ footer {
 }
 
 .topic-tag {
-    background: var(--background);
+    background: var(--bg-secondary);
     border: 1px solid var(--border);
-    color: #1e293b;
+    color: var(--text);
     padding: 2px 8px;
     border-radius: 12px;
     font-size: 0.75rem;
@@ -4633,7 +4633,7 @@ footer {
 }
 
 .stat-card {
-    background: var(--background);
+    background: var(--bg);
     border-radius: 8px;
     padding: 1rem;
     text-align: center;
@@ -4642,7 +4642,7 @@ footer {
 
 .stat-card h3 {
     margin: 0 0 0.5rem 0;
-    color: var(--primary);
+    color: var(--accent);
     font-size: 1.5rem;
     font-weight: 700;
 }
@@ -4808,7 +4808,7 @@ footer {
 
 .tech-tag {
     background: var(--secondary);
-    color: #1e293b;
+    color: var(--text-inverse);
     padding: 4px 10px;
     border-radius: 15px;
     font-size: 0.75rem;

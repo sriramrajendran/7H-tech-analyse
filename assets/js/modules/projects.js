@@ -4,88 +4,57 @@ class ProjectsModule {
         this.projects = [
             {
                 id: 1,
-                title: "Real-Time Stock Analysis Platform",
+                title: "Real Time Market Analysis",
                 category: "FinTech",
                 status: "Active",
-                description: "A comprehensive platform for real-time stock market analysis with advanced technical indicators and portfolio management.",
-                technologies: ["React", "Node.js", "WebSocket", "MongoDB", "Chart.js"],
+                description: "Real-time marker analysis on demand for portfolio and watchlist with US market analysis and crypto market analysis. Features chart pattern analysis, technical analysis based on indicators, and candlestick pattern analysis.",
+                technologies: ["HTML", "CSS", "JavaScript", "GitHub Pages", "Chart.js", "Lucide Icons"],
                 features: [
-                    "Real-time market data streaming",
-                    "Advanced technical indicators",
-                    "Portfolio tracking and analysis",
-                    "Risk assessment tools",
-                    "Custom alert system"
+                    "Real-time market analysis on demand",
+                    "Portfolio and watchlist analysis",
+                    "US market analysis and crypto market analysis",
+                    "Chart pattern analysis",
+                    "Technical analysis based on indicators",
+                    "Candlestick pattern analysis",
+                    "Code embedded in this app"
                 ],
-                githubUrl: "https://github.com/sriramrajendran/stock-analysis",
-                demoUrl: "https://stock-analysis-demo.example.com",
-                progress: 75,
-                teamSize: 3,
-                startDate: "2023-09-01",
-                estimatedCompletion: "2024-03-01"
-            },
+                githubUrl: "https://github.com/sriramrajendran/7h-beaconoftech",
+                demoUrl: "https://sriramrajendran.github.io/7h-beaconoftech",
+                            },
             {
                 id: 2,
-                title: "Microservices E-commerce Platform",
-                category: "E-Commerce",
-                status: "Completed",
-                description: "A scalable e-commerce platform built with microservices architecture, supporting high traffic and complex inventory management.",
-                technologies: ["Node.js", "Docker", "Kubernetes", "Redis", "PostgreSQL"],
+                title: "Stock Analysis Engine",
+                category: "FinTech",
+                status: "Active",
+                description: "Comprehensive analysis of the market, stocks, ETFs, crypto, and more. Features scheduled checks, alerting via push notifications, and enables users to set up alerts for specific stocks, ETFs, crypto, etc.",
+                technologies: ["Python", "JavaScript", "API Integration", "Data Analysis", "Notification Systems"],
                 features: [
-                    "Microservices architecture",
-                    "Auto-scaling infrastructure",
-                    "Real-time inventory management",
-                    "Payment gateway integration",
-                    "Advanced analytics dashboard"
+                    "Analysis of market, stocks, ETFs, crypto, etc.",
+                    "Scheduled checks and monitoring",
+                    "Alerting via push notifications",
+                    "Custom alerts for specific stocks, ETFs, crypto",
+                    "Automated market scanning"
                 ],
-                githubUrl: "https://github.com/sriramrajendran/ecommerce-platform",
-                demoUrl: "https://ecommerce-demo.example.com",
-                progress: 100,
-                teamSize: 5,
-                startDate: "2023-01-15",
-                completionDate: "2023-08-30"
-            },
+                githubUrl: "https://github.com/sriramrajendran/7h-stock-analyzer",
+                demoUrl: null,
+                            },
             {
                 id: 3,
-                title: "AI-Powered Code Review Assistant",
-                category: "AI/ML",
+                title: "Gen AI based Educator",
+                category: "AI/EdTech",
                 status: "In Development",
-                description: "An intelligent code review tool that uses machine learning to identify potential issues, suggest improvements, and enforce coding standards.",
-                technologies: ["Python", "TensorFlow", "Git API", "React", "FastAPI"],
+                description: "Expert analysis on stocks, mortgages, real estate, and more with personified experience. Provides explanations in terms of a user's loan, mortgage, and financial situations.",
+                technologies: ["Python", "FastAPI", "OpenAI", "ChromaDB", "Langgraph", "Docker", "GitHub Actions", "GitHub Pages", "React", "TailwindCSS", "NodeJS"],
                 features: [
-                    "Automated code quality analysis",
-                    "Security vulnerability detection",
-                    "Performance optimization suggestions",
-                    "Coding standard enforcement",
-                    "Integration with popular IDEs"
+                    "Expert analysis on stocks, mortgages, real estate",
+                    "Personified AI experience",
+                    "Explanations in terms of user's loan and mortgage",
+                    "Interactive learning modules",
+                    "Real-time financial education"
                 ],
-                githubUrl: "https://github.com/sriramrajendran/code-review-ai",
+                githubUrl: "https://github.com/sriramrajendran/7h-stock-analyzer",
                 demoUrl: null,
-                progress: 45,
-                teamSize: 4,
-                startDate: "2023-11-01",
-                estimatedCompletion: "2024-06-01"
-            },
-            {
-                id: 4,
-                title: "Cloud-Native CI/CD Pipeline",
-                category: "DevOps",
-                status: "Active",
-                description: "A comprehensive CI/CD solution for cloud-native applications with automated testing, deployment, and monitoring.",
-                technologies: ["Jenkins", "Docker", "Kubernetes", "Terraform", "Prometheus"],
-                features: [
-                    "Automated build and test pipelines",
-                    "Multi-cloud deployment support",
-                    "Infrastructure as code",
-                    "Real-time monitoring and alerting",
-                    "Rollback and recovery mechanisms"
-                ],
-                githubUrl: "https://github.com/sriramrajendran/cicd-pipeline",
-                demoUrl: null,
-                progress: 60,
-                teamSize: 2,
-                startDate: "2023-10-15",
-                estimatedCompletion: "2024-02-15"
-            }
+                            }
         ];
     }
 
@@ -174,7 +143,6 @@ class ProjectsModule {
 
     generateProjectCard(project) {
         const statusClass = project.status.toLowerCase().replace(/\s+/g, '-');
-        const progressColor = project.progress >= 75 ? 'success' : project.progress >= 50 ? 'warning' : 'danger';
         
         return `
             <article class="project-card">
@@ -187,16 +155,7 @@ class ProjectsModule {
                     <h3>${project.title}</h3>
                     <p class="project-description">${project.description}</p>
                     
-                    <div class="project-progress">
-                        <div class="progress-header">
-                            <span>Progress</span>
-                            <span class="progress-percentage">${project.progress}%</span>
-                        </div>
-                        <div class="progress-bar">
-                            <div class="progress-fill ${progressColor}" style="width: ${project.progress}%"></div>
-                        </div>
-                    </div>
-                    
+                                        
                     <div class="project-technologies">
                         <h4>Technologies</h4>
                         <div class="tech-tags">
@@ -218,28 +177,7 @@ class ProjectsModule {
                         </ul>
                     </div>
                     
-                    <div class="project-meta">
-                        <div class="meta-item">
-                            <span class="meta-label">Team Size:</span>
-                            <span class="meta-value">${project.teamSize} members</span>
-                        </div>
-                        <div class="meta-item">
-                            <span class="meta-label">Started:</span>
-                            <span class="meta-value">${this.formatDate(project.startDate)}</span>
-                        </div>
-                        ${project.completionDate ? `
-                            <div class="meta-item">
-                                <span class="meta-label">Completed:</span>
-                                <span class="meta-value">${this.formatDate(project.completionDate)}</span>
-                            </div>
-                        ` : project.estimatedCompletion ? `
-                            <div class="meta-item">
-                                <span class="meta-label">Est. Completion:</span>
-                                <span class="meta-value">${this.formatDate(project.estimatedCompletion)}</span>
-                            </div>
-                        ` : ''}
-                    </div>
-                    
+                                        
                     <div class="project-actions">
                         <a href="${project.githubUrl}" target="_blank" class="action-btn primary">
                             📂 View Code
@@ -277,7 +215,6 @@ class ProjectsModule {
                         <div class="project-meta-header">
                             <span class="project-category">${project.category}</span>
                             <span class="project-status ${project.status.toLowerCase().replace(/\s+/g, '-')}">${project.status}</span>
-                            <span class="team-size">👥 ${project.teamSize} members</span>
                         </div>
                     </div>
                     
@@ -302,46 +239,6 @@ class ProjectsModule {
 
     generateDetailedProjectSections(project) {
         return `
-            <section class="project-section">
-                <h2>Project Overview</h2>
-                <div class="overview-grid">
-                    <div class="overview-item">
-                        <h3>Progress</h3>
-                        <div class="progress-display">
-                            <div class="progress-bar-large">
-                                <div class="progress-fill ${project.progress >= 75 ? 'success' : project.progress >= 50 ? 'warning' : 'danger'}" 
-                                     style="width: ${project.progress}%"></div>
-                            </div>
-                            <span class="progress-percentage-large">${project.progress}%</span>
-                        </div>
-                    </div>
-                    
-                    <div class="overview-item">
-                        <h3>Timeline</h3>
-                        <div class="timeline-info">
-                            <p><strong>Started:</strong> ${this.formatDate(project.startDate)}</p>
-                            ${project.completionDate ? 
-                                `<p><strong>Completed:</strong> ${this.formatDate(project.completionDate)}</p>` :
-                                project.estimatedCompletion ?
-                                `<p><strong>Est. Completion:</strong> ${this.formatDate(project.estimatedCompletion)}</p>` : ''
-                            }
-                        </div>
-                    </div>
-                    
-                    <div class="overview-item">
-                        <h3>Team</h3>
-                        <div class="team-info">
-                            <p>${project.teamSize} team members</p>
-                            <div class="team-avatars">
-                                ${Array(project.teamSize).fill(0).map((_, i) => 
-                                    `<div class="team-avatar" title="Team Member ${i + 1}">👤</div>`
-                                ).join('')}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-            
             <section class="project-section">
                 <h2>Technologies Used</h2>
                 <div class="tech-grid">
@@ -430,9 +327,8 @@ class ProjectsModule {
         const total = this.projects.length;
         const active = this.projects.filter(p => p.status === 'Active').length;
         const completed = this.projects.filter(p => p.status === 'Completed').length;
-        const teamMembers = this.projects.reduce((sum, p) => sum + p.teamSize, 0);
         
-        return { total, active, completed, teamMembers };
+        return { total, active, completed };
     }
 
     getCategories() {
