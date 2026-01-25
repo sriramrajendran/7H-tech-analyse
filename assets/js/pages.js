@@ -1073,8 +1073,8 @@ class PageManager {
             row.style.cssText = 'cursor: pointer;';
             row.innerHTML = `
                 <td style="background: white; border: 1px solid #ccc; text-align: center; font-weight: bold;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${index + 1}</td>
-                <td style="background: white; border: 1px solid #ccc;" data-company="${result.company_name || result.company || ''}"><strong>${result.symbol}</strong></td>
-                <td style="background: white; border: 1px solid #ccc;">$${result.current_price?.toFixed(2) || 'N/A'}</td>
+                <td style="background: white; border: 1px solid #ccc;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}"><strong>${result.symbol}</strong></td>
+                <td style="background: white; border: 1px solid #ccc;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">$${result.current_price?.toFixed(2) || 'N/A'}</td>
                 <td style="background: white; border: 1px solid #ccc; color: ${result.price_change_1d_pct >= 0 ? 'green' : 'red'};" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${result.price_change_1d_pct >= 0 ? '+' : ''}${result.price_change_1d_pct?.toFixed(2) || '0.00'}%</td>
                 <td style="background: white; border: 1px solid #ccc; color: ${result.price_change_1w_pct >= 0 ? 'green' : 'red'};" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${result.price_change_1w_pct >= 0 ? '+' : ''}${result.price_change_1w_pct?.toFixed(2) || '0.00'}%</td>
                 <td style="background: white; border: 1px solid #ccc; color: ${result.price_change_1m_pct >= 0 ? 'green' : 'red'};" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${result.price_change_1m_pct >= 0 ? '+' : ''}${result.price_change_1m_pct?.toFixed(2) || '0.00'}%</td>
@@ -1086,7 +1086,7 @@ class PageManager {
                 <td style="background: white; border: 1px solid #ccc;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${macdDivBadge}</td>
                 <td style="background: white; border: 1px solid #ccc;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${crossBadge}</td>
                 <td style="background: white; border: 1px solid #ccc;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${breakoutBadge}</td>
-                <td style="background: white; border: 1px solid #ccc;"><span class="${recommendationClass}">${recommendation}</span></td>
+                <td style="background: white; border: 1px solid #ccc;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}"><span class="${recommendationClass}">${recommendation}</span></td>
                 <td style="background: white; border: 1px solid #ccc; font-weight: bold;" data-symbol="${result.symbol}" data-company="${result.company_name || result.company || ''}" data-recommendation="${recommendation}">${result.score?.toFixed(1) || '0'}</td>
             `;
             newTbody.appendChild(row);
@@ -1101,12 +1101,31 @@ class PageManager {
             tableWrapper.appendChild(table);
         }
         
-        // Add event listeners
+        // Add event listeners with debugging
         newTbody.addEventListener('click', (e) => {
+            console.log('Table clicked:', e.target);
+            const cell = e.target.closest('td');
             const row = e.target.closest('tr');
-            if (row && row.getAttribute('data-symbol')) {
-                const symbol = row.getAttribute('data-symbol');
+            console.log('Cell found:', cell);
+            console.log('Row found:', row);
+            
+            // Try to get symbol from cell first, then from row
+            let symbol = null;
+            if (cell) {
+                symbol = cell.getAttribute('data-symbol');
+                console.log('Symbol from cell:', symbol);
+            }
+            
+            if (!symbol && row) {
+                symbol = row.getAttribute('data-symbol');
+                console.log('Symbol from row:', symbol);
+            }
+            
+            if (symbol) {
+                console.log('Calling showStockDetails for:', symbol);
                 this.showStockDetails(symbol);
+            } else {
+                console.log('No data-symbol attribute found on cell or row');
             }
         });
         
@@ -1252,21 +1271,31 @@ class PageManager {
     }
     
     showStockDetails(symbol) {
+        console.log('showStockDetails called for:', symbol);
         // Find the stock data from the last analysis
         const stockData = window.lastAnalysisResults?.find(s => s.symbol === symbol);
+        console.log('Found stock data:', stockData);
         if (stockData) {
+            console.log('Calling displayDetailedModal');
             this.displayDetailedModal(stockData);
         } else {
+            console.log('No stock data found, showing fallback');
             alert(`Stock details for ${symbol} would be shown here. This feature is coming soon!`);
         }
     }
     
     displayDetailedModal(stock) {
+        console.log('displayDetailedModal called for:', stock.symbol);
         const modal = document.getElementById('stock-detail-modal');
         const modalTitle = document.getElementById('modal-title');
         const modalBody = document.getElementById('modal-body');
         
-        if (!modal || !modalTitle || !modalBody) return;
+        console.log('Modal elements found:', { modal: !!modal, modalTitle: !!modalTitle, modalBody: !!modalBody });
+        
+        if (!modal || !modalTitle || !modalBody) {
+            console.error('Modal elements not found!');
+            return;
+        }
         
         modalTitle.textContent = `${stock.symbol} - ${stock.company_name || 'Company'}`;
         
@@ -1274,114 +1303,126 @@ class PageManager {
         
         modalBody.innerHTML = `
             <div class="analysis-container">
-                <!-- Side by Side: Fundamental and Technical Data -->
-                <div class="side-by-side-container">
-                    <!-- Fundamental Data (includes Price Performance) -->
-                    <div class="analysis-section fundamental-section">
+                <!-- Horizontal Layout: Fundamental and Technical Data -->
+                <div class="horizontal-container">
+                    <!-- Fundamental Data (left side) -->
+                    <div class="analysis-section fundamental-horizontal">
                         <h3>📊 Fundamental Data</h3>
-                        <div class="indicators-grid">
-                            <div class="indicator-card">
-                                <div class="indicator-label">Current Price</div>
-                                <div class="indicator-value">$${stock.current_price?.toFixed(2) || 'N/A'}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">Market Cap</div>
-                                <div class="indicator-value">${this.generateMarketCap(stock.current_price)}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">P/E Ratio</div>
-                                <div class="indicator-value">${this.generatePERatio(stock.symbol)}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">EPS</div>
-                                <div class="indicator-value">${this.generateEPS(stock.symbol)}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">52W High</div>
-                                <div class="indicator-value">$${(stock.current_price * 1.25).toFixed(2)}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">52W Low</div>
-                                <div class="indicator-value">$${(stock.current_price * 0.75).toFixed(2)}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">Volume</div>
-                                <div class="indicator-value">${this.generateVolume()}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">Avg Volume</div>
-                                <div class="indicator-value">${this.generateAvgVolume()}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">1 Day</div>
-                                <div class="indicator-value ${stock.price_change_1d_pct >= 0 ? 'positive' : 'negative'}">
-                                    ${stock.price_change_1d_pct >= 0 ? '+' : ''}${stock.price_change_1d_pct?.toFixed(2) || '0.00'}%
+                        <div class="indicators-horizontal">
+                            <div class="indicator-row">
+                                <div class="indicator-item">
+                                    <div class="indicator-label">Current Price</div>
+                                    <div class="indicator-value">$${stock.current_price?.toFixed(2) || 'N/A'}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">Market Cap</div>
+                                    <div class="indicator-value">${this.generateMarketCap(stock.current_price)}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">P/E Ratio</div>
+                                    <div class="indicator-value">${this.generatePERatio(stock.symbol)}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">EPS</div>
+                                    <div class="indicator-value">${this.generateEPS(stock.symbol)}</div>
                                 </div>
                             </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">1 Week</div>
-                                <div class="indicator-value ${stock.price_change_1w_pct >= 0 ? 'positive' : 'negative'}">
-                                    ${stock.price_change_1w_pct >= 0 ? '+' : ''}${stock.price_change_1w_pct?.toFixed(2) || '0.00'}%
+                            <div class="indicator-row">
+                                <div class="indicator-item">
+                                    <div class="indicator-label">52W High</div>
+                                    <div class="indicator-value">$${(stock.current_price * 1.25).toFixed(2)}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">52W Low</div>
+                                    <div class="indicator-value">$${(stock.current_price * 0.75).toFixed(2)}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">Volume</div>
+                                    <div class="indicator-value">${this.generateVolume()}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">Avg Volume</div>
+                                    <div class="indicator-value">${this.generateAvgVolume()}</div>
                                 </div>
                             </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">1 Month</div>
-                                <div class="indicator-value ${stock.price_change_1m_pct >= 0 ? 'positive' : 'negative'}">
-                                    ${stock.price_change_1m_pct >= 0 ? '+' : ''}${stock.price_change_1m_pct?.toFixed(2) || '0.00'}%
+                            <div class="indicator-row">
+                                <div class="indicator-item">
+                                    <div class="indicator-label">1 Day</div>
+                                    <div class="indicator-value ${stock.price_change_1d_pct >= 0 ? 'positive' : 'negative'}">
+                                        ${stock.price_change_1d_pct >= 0 ? '+' : ''}${stock.price_change_1d_pct?.toFixed(2) || '0.00'}%
+                                    </div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">1 Week</div>
+                                    <div class="indicator-value ${stock.price_change_1w_pct >= 0 ? 'positive' : 'negative'}">
+                                        ${stock.price_change_1w_pct >= 0 ? '+' : ''}${stock.price_change_1w_pct?.toFixed(2) || '0.00'}%
+                                    </div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">1 Month</div>
+                                    <div class="indicator-value ${stock.price_change_1m_pct >= 0 ? 'positive' : 'negative'}">
+                                        ${stock.price_change_1m_pct >= 0 ? '+' : ''}${stock.price_change_1m_pct?.toFixed(2) || '0.00'}%
+                                    </div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">6 Months</div>
+                                    <div class="indicator-value ${stock.price_change_6m_pct >= 0 ? 'positive' : 'negative'}">
+                                        ${stock.price_change_6m_pct >= 0 ? '+' : ''}${stock.price_change_6m_pct?.toFixed(2) || '0.00'}%
+                                    </div>
                                 </div>
                             </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">6 Months</div>
-                                <div class="indicator-value ${stock.price_change_6m_pct >= 0 ? 'positive' : 'negative'}">
-                                    ${stock.price_change_6m_pct >= 0 ? '+' : ''}${stock.price_change_6m_pct?.toFixed(2) || '0.00'}%
-                                </div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">1 Year</div>
-                                <div class="indicator-value ${stock.price_change_1y_pct >= 0 ? 'positive' : 'negative'}">
-                                    ${stock.price_change_1y_pct >= 0 ? '+' : ''}${stock.price_change_1y_pct?.toFixed(2) || '0.00'}%
+                            <div class="indicator-row">
+                                <div class="indicator-item">
+                                    <div class="indicator-label">1 Year</div>
+                                    <div class="indicator-value ${stock.price_change_1y_pct >= 0 ? 'positive' : 'negative'}">
+                                        ${stock.price_change_1y_pct >= 0 ? '+' : ''}${stock.price_change_1y_pct?.toFixed(2) || '0.00'}%
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <!-- Technical Data -->
-                    <div class="analysis-section technical-section">
+                    <!-- Technical Data (right side) -->
+                    <div class="analysis-section technical-horizontal">
                         <h3>📈 Technical Data</h3>
-                        <div class="indicators-grid">
-                            <div class="indicator-card">
-                                <div class="indicator-label">RSI (14)</div>
-                                <div class="indicator-value ${this.getRSIClass(indicators.rsi)}">
-                                    ${indicators.rsi?.toFixed(2) || 'N/A'}
+                        <div class="indicators-horizontal">
+                            <div class="indicator-row">
+                                <div class="indicator-item">
+                                    <div class="indicator-label">RSI (14)</div>
+                                    <div class="indicator-value ${this.getRSIClass(indicators.rsi)}">
+                                        ${indicators.rsi?.toFixed(2) || 'N/A'}
+                                    </div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">MACD</div>
+                                    <div class="indicator-value">${indicators.macd?.macd?.toFixed(4) || 'N/A'}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">SMA (20)</div>
+                                    <div class="indicator-value">$${indicators.sma20?.toFixed(2) || 'N/A'}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">SMA (50)</div>
+                                    <div class="indicator-value">$${indicators.sma50?.toFixed(2) || 'N/A'}</div>
                                 </div>
                             </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">MACD</div>
-                                <div class="indicator-value">${indicators.macd?.macd?.toFixed(4) || 'N/A'}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">SMA (20)</div>
-                                <div class="indicator-value">$${indicators.sma20?.toFixed(2) || 'N/A'}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">SMA (50)</div>
-                                <div class="indicator-value">$${indicators.sma50?.toFixed(2) || 'N/A'}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">SMA (200)</div>
-                                <div class="indicator-value">$${indicators.sma200?.toFixed(2) || 'N/A'}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">Bollinger Upper</div>
-                                <div class="indicator-value">$${indicators.bollinger?.upper?.toFixed(2) || 'N/A'}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">Bollinger Lower</div>
-                                <div class="indicator-value">$${indicators.bollinger?.lower?.toFixed(2) || 'N/A'}</div>
-                            </div>
-                            <div class="indicator-card">
-                                <div class="indicator-label">Stochastic %K</div>
-                                <div class="indicator-value">${indicators.stochastic?.k?.toFixed(2) || 'N/A'}%</div>
+                            <div class="indicator-row">
+                                <div class="indicator-item">
+                                    <div class="indicator-label">SMA (200)</div>
+                                    <div class="indicator-value">$${indicators.sma200?.toFixed(2) || 'N/A'}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">Bollinger Upper</div>
+                                    <div class="indicator-value">$${indicators.bollinger?.upper?.toFixed(2) || 'N/A'}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">Bollinger Lower</div>
+                                    <div class="indicator-value">$${indicators.bollinger?.lower?.toFixed(2) || 'N/A'}</div>
+                                </div>
+                                <div class="indicator-item">
+                                    <div class="indicator-label">Stochastic %K</div>
+                                    <div class="indicator-value">${indicators.stochastic?.k?.toFixed(2) || 'N/A'}%</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1424,7 +1465,44 @@ class PageManager {
             </div>
         `;
         
-        modal.style.display = 'block';
+        console.log('Modal content set, showing modal');
+        console.log('Modal current display:', modal.style.display);
+        console.log('Modal computed style:', window.getComputedStyle(modal).display);
+        
+        // Aggressive modal show with inline styles
+        modal.setAttribute('style', `
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+            z-index: 99999 !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            width: 100% !important;
+            height: 100% !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            justify-content: center !important;
+            align-items: center !important;
+            padding: 20px !important;
+        `);
+        
+        console.log('Modal display forced with inline styles');
+        
+        // Visual test: add a bright border to verify modal is visible
+        setTimeout(() => {
+            const modalRect = modal.getBoundingClientRect();
+            console.log('Modal dimensions:', {
+                width: modalRect.width,
+                height: modalRect.height,
+                top: modalRect.top,
+                left: modalRect.left,
+                visible: modalRect.width > 0 && modalRect.height > 0
+            });
+            
+            // Remove red border after verification
+            modal.style.border = 'none';
+            console.log('Modal verified and red border removed');
+        }, 100);
         
         // Add event listener to close modal when clicking outside
         modal.addEventListener('click', (e) => {

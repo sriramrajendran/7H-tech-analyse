@@ -974,6 +974,84 @@ footer {
     transform: translateY(-1px);
 }
 
+/* Horizontal Modal Layout */
+.horizontal-container {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.fundamental-horizontal,
+.technical-horizontal {
+    flex: 1;
+    background: var(--card-bg);
+    border-radius: 8px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    min-width: 0;
+}
+
+.indicators-horizontal {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.indicator-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.indicator-item {
+    flex: 1;
+    min-width: 100px;
+    background: var(--bg);
+    padding: 6px 8px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.indicator-item .indicator-label {
+    font-size: 0.7rem;
+    color: var(--text-light);
+    margin-bottom: 2px;
+}
+
+.indicator-item .indicator-value {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text);
+}
+
+.indicator-item .indicator-value.positive {
+    color: var(--success);
+}
+
+.indicator-item .indicator-value.negative {
+    color: var(--danger);
+}
+
+/* Responsive adjustments for horizontal modal */
+@media (max-width: 768px) {
+    .horizontal-container {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .indicator-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .indicator-item {
+        min-width: auto;
+    }
+}
+
 /* Modal Styles */
 .modal-overlay {
     position: fixed;
@@ -992,11 +1070,15 @@ footer {
 .modal-content {
     background: white;
     border-radius: 16px;
-    max-width: 95vw;
+    max-width: 98vw;
+    max-height: 90vh;
+    width: 98vw;
+    height: auto;
     margin: 20px;
-    padding: 30px;
+    padding: 20px;
     position: relative;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
 }
 
 .modal-header {
