@@ -113,10 +113,15 @@ Running app locally:
 - **Professional Styling**: Consistent design language across technology and stock sections
 
 ### **👤 Author Section Features:**
-- **Professional Profile**: Comprehensive author information with avatar, bio, and expertise areas
-- **Skills Showcase**: Categorized technology skills (Frontend, Backend, Cloud & DevOps, Data & AI)
-- **Social Integration**: Links to Twitter, GitHub, LinkedIn, and personal website
-- **Contact Methods**: Direct email and professional networking connections
+- **Professional Profile**: Comprehensive author information with photo, bio, and expertise areas
+- **Professional Photo**: Circular avatar with BeaconOfTech gradient border and hover effects
+- **Professional Memberships**: IEEE Senior Member and ioasd.org Royal Fellow badges
+- **Skills Showcase**: Categorized technology skills (Gen AI & Cloud, Core Technologies, Data & Databases, DevOps & Infrastructure, Enterprise Systems, Leadership & Design)
+- **Social Integration**: Links to LinkedIn and GitHub profiles
+- **Leadership & Innovation**: Cross-functional team leadership, digital transformation, innovation management
+- **Professional Philosophy**: Commitment to diversity, inclusion, and continuous learning
+- **Photography Section**: Creative pursuits with Instagram integration
+- **Contact Methods**: Professional networking connections
 - **Responsive Design**: Mobile-optimized layout with adaptive content sections
 - **Standalone Navigation**: Independent menu item that collapses other sections when selected
 

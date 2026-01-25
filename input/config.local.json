@@ -49,12 +49,12 @@
   },
   "ui": {
     "theme": {
-      "primary": "#667eea",
-      "secondary": "#764ba2",
-      "accent": "#4CAF50",
-      "warning": "#ff9800",
-      "error": "#f44336",
-      "success": "#4CAF50"
+      "primary": "#1e3a8a",
+      "secondary": "#475569",
+      "accent": "#0ea5e9",
+      "warning": "#f59e0b",
+      "error": "#ef4444",
+      "success": "#10b981"
     },
     "responsive": {
       "mobileBreakpoint": "768px",
