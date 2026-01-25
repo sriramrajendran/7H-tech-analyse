@@ -16,6 +16,10 @@ class PageManager {
         this.blogModule = new BlogModule();
         this.tutorialsModule = new TutorialsModule();
         this.projectsModule = new ProjectsModule();
+        this.patternsModule = new PatternsModule();
+        
+        // Set global reference for patterns module (needed for onclick handlers)
+        window.patternsModule = this.patternsModule;
         
         console.log('PageManager: Modules initialized');
     }
@@ -290,6 +294,7 @@ class PageManager {
             'portfolio': 'Market Analytics',
             'watchlist': 'Market Analytics',
             'screener': 'Market Analytics',
+            'patterns': 'Market Analytics',
             'etf': 'Market Analytics',
             
             // Markets pages
@@ -306,7 +311,7 @@ class PageManager {
         
         // Control market data visibility based on section
         if (typeof marketDataService !== 'undefined') {
-            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'etf'];
+            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'patterns', 'etf'];
             const marketsPages = ['us-stocks', 'crypto'];
             const techPages = ['tech-blog', 'tech-tutorials', 'tech-projects'];
             
@@ -365,7 +370,7 @@ class PageManager {
         
         if (techParent && analyticsParent && marketsParent) {
             const techPages = ['tech-blog', 'tech-tutorials', 'tech-projects'];
-            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'etf'];
+            const analyticsPages = ['portfolio', 'watchlist', 'screener', 'patterns', 'etf'];
             const marketsPages = ['us-stocks', 'crypto'];
             
             // Collapse all sections first
@@ -414,6 +419,9 @@ class PageManager {
                 break;
             case 'screener':
                 content = this.generateScreenerContent();
+                break;
+            case 'patterns':
+                content = this.patternsModule.generatePatternsContent();
                 break;
             case 'us-stocks':
                 content = this.generateUSStocksContent();
@@ -1009,6 +1017,15 @@ class PageManager {
             });
         }
         
+        // Attach patterns-specific event listeners
+        if (pageType === 'patterns' && this.patternsModule) {
+            this.patternsModule.attachEventListeners();
+            
+            // Reinitialize Lucide icons for patterns page
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
 
         this.setupTableControls();
     }

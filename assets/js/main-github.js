@@ -112,6 +112,10 @@ function initializePremiumFeatures() {
     
     // Loading animations
     initializeLoadingAnimations();
+    
+    // Modal event handlers
+    setupESCKeyHandler();
+    setupModalClickOutsideHandler();
 }
 
 // Theme toggle functionality
@@ -666,7 +670,33 @@ function closeStockDetail() {
     const modal = document.getElementById('stock-detail-modal');
     if (modal) {
         modal.style.display = 'none';
-        document.body.style.overflow = 'auto';
+        
+        // Simple unlock - just remove the class
+        document.body.classList.remove('modal-open');
+    }
+}
+
+// ESC key handler for closing modals
+function setupESCKeyHandler() {
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' || event.keyCode === 27) {
+            const modal = document.getElementById('stock-detail-modal');
+            if (modal && modal.style.display === 'flex') {
+                closeStockDetail();
+            }
+        }
+    });
+}
+
+// Click outside modal to close
+function setupModalClickOutsideHandler() {
+    const modal = document.getElementById('stock-detail-modal');
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeStockDetail();
+            }
+        });
     }
 }
 
