@@ -254,9 +254,9 @@ class PlaybooksModule {
                     </div>
                 </div>
                 
-                <div class="card-footer">
+                <div class="card-footer" style="margin-top: 1rem; padding-top: 1rem;">
                     <button class="start-playbook-btn" onclick="if(typeof playbookModule !== 'undefined') playbookModule.showFullPlaybook(${playbook.id}); else console.error('playbookModule not available');">
-                        Start Playbook
+                        Start Playbook →
                     </button>
                 </div>
             </article>
@@ -266,15 +266,62 @@ class PlaybooksModule {
     // Generate playbooks grid
     generatePlaybooksGrid() {
         const playbooks = this.getPlaybooks();
+        const featuredPlaybook = playbooks[0];
+        const recentPlaybooks = playbooks.slice(1, 4);
+        
+        return `
+            <div class="blog-container">
+                <div class="page-header">
+                    <h2>Playbooks</h2>
+                    <p>Sharing on information that worked out for me</p>
+                </div>
+                
+                ${this.generateFeaturedPlaybook(featuredPlaybook)}
+                ${this.generateRecentPlaybooksSection(recentPlaybooks)}
+            </div>
+        `;
+    }
+
+    // Generate featured playbook
+    generateFeaturedPlaybook(playbook) {
+        if (!playbook) return '';
+        
+        return `
+            <section class="featured-post">
+                <div class="featured-content">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                        <span class="playbook-category" style="display: inline-block; max-width: fit-content;">${playbook.category}</span>
+                        <span class="playbook-difficulty ${playbook.difficulty.toLowerCase()}">${playbook.difficulty}</span>
+                    </div>
+                    <h3>${playbook.title}</h3>
+                    <p class="post-excerpt">${playbook.description}</p>
+                    <div class="playbook-meta">
+                        <span class="duration">⏱️ ${playbook.duration}</span>
+                        <span class="topics-count">📚 ${playbook.topics.length} topics</span>
+                    </div>
+                    <div class="playbook-topics">
+                        ${playbook.topics.slice(0, 3).map(topic => 
+                            `<span class="topic-tag">${topic}</span>`
+                        ).join('')}
+                        ${playbook.topics.length > 3 ? `<span class="topic-tag">+${playbook.topics.length - 3} more</span>` : ''}
+                    </div>
+                    <button class="read-more-btn" onclick="if(typeof playbookModule !== 'undefined') playbookModule.showFullPlaybook(${playbook.id}); else console.error('playbookModule not available');">
+                        Start Playbook →
+                    </button>
+                </div>
+            </section>
+        `;
+    }
+
+    // Generate recent playbooks section
+    generateRecentPlaybooksSection(playbooks) {
+        if (!playbooks.length) return '';
+        
         const gridHTML = playbooks.map(playbook => this.generatePlaybookCard(playbook)).join('');
         
         return `
-            <div class="page-header">
-                <h2>Learning Playbooks</h2>
-                <p>Step-by-step guides to master modern development practices</p>
-            </div>
-            
-            <section class="playbooks-list">
+            <section class="recent-posts">
+                <h2>More Playbooks</h2>
                 <div class="playbooks-grid">
                     ${gridHTML}
                 </div>
