@@ -276,10 +276,72 @@ class PlaybooksModule {
                     <p>Sharing on information that worked out for me</p>
                 </div>
                 
-                ${this.generateFeaturedPlaybook(featuredPlaybook)}
-                ${this.generateRecentPlaybooksSection(recentPlaybooks)}
+                <div class="filters-section">
+                    <div class="filter-group">
+                        <label>Category</label>
+                        <div class="filter-options">
+                            <button class="filter-btn active" data-category="all" onclick="playbookModule.filterPlaybooks('category', 'all')">All</button>
+                            <button class="filter-btn" data-category="development" onclick="playbookModule.filterPlaybooks('category', 'development')">Development</button>
+                            <button class="filter-btn" data-category="backend" onclick="playbookModule.filterPlaybooks('category', 'backend')">Backend</button>
+                            <button class="filter-btn" data-category="devops" onclick="playbookModule.filterPlaybooks('category', 'devops')">DevOps</button>
+                            <button class="filter-btn" data-category="fullstack" onclick="playbookModule.filterPlaybooks('category', 'fullstack')">Full Stack</button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group">
+                        <label>Difficulty</label>
+                        <div class="filter-options">
+                            <button class="filter-btn active" data-difficulty="all" onclick="playbookModule.filterPlaybooks('difficulty', 'all')">All</button>
+                            <button class="filter-btn" data-difficulty="beginner" onclick="playbookModule.filterPlaybooks('difficulty', 'beginner')">Beginner</button>
+                            <button class="filter-btn" data-difficulty="intermediate" onclick="playbookModule.filterPlaybooks('difficulty', 'intermediate')">Intermediate</button>
+                            <button class="filter-btn" data-difficulty="advanced" onclick="playbookModule.filterPlaybooks('difficulty', 'advanced')">Advanced</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="playbooks-content">
+                    ${this.generateFeaturedPlaybook(featuredPlaybook)}
+                    ${this.generateRecentPlaybooksSection(recentPlaybooks)}
+                </div>
             </div>
         `;
+    }
+
+    // Filter playbooks
+    filterPlaybooks(filterType, filterValue) {
+        const allPlaybooks = this.getPlaybooks();
+        let filteredPlaybooks = allPlaybooks;
+        
+        if (filterType === 'category' && filterValue !== 'all') {
+            filteredPlaybooks = allPlaybooks.filter(playbook => 
+                playbook.category.toLowerCase().includes(filterValue.toLowerCase())
+            );
+        } else if (filterType === 'difficulty' && filterValue !== 'all') {
+            filteredPlaybooks = allPlaybooks.filter(playbook => 
+                playbook.difficulty.toLowerCase() === filterValue.toLowerCase()
+            );
+        }
+        
+        // Update active button states
+        const buttons = document.querySelectorAll(`.filter-btn[data-${filterType}]`);
+        buttons.forEach(btn => {
+            btn.classList.remove('active');
+            if (btn.getAttribute(`data-${filterType}`) === filterValue) {
+                btn.classList.add('active');
+            }
+        });
+        
+        // Update content
+        const contentDiv = document.getElementById('playbooks-content');
+        if (contentDiv) {
+            const featuredPlaybook = filteredPlaybooks[0];
+            const recentPlaybooks = filteredPlaybooks.slice(1, 4);
+            
+            contentDiv.innerHTML = `
+                ${this.generateFeaturedPlaybook(featuredPlaybook)}
+                ${this.generateRecentPlaybooksSection(recentPlaybooks)}
+            `;
+        }
     }
 
     // Generate featured playbook
