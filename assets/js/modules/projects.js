@@ -54,6 +54,24 @@ class ProjectsModule {
                 ],
                 githubUrl: "https://github.com/sriramrajendran/7h-stock-analyzer",
                 demoUrl: null,
+                            },
+            {
+                id: 4,
+                title: "Sensible Stories",
+                category: "Web/Publishing",
+                status: "Active",
+                description: "A professional GitHub Pages site for hosting and reading PDF stories online. Features dynamic story loading, built-in PDF viewer with navigation controls, and mobile-responsive design.",
+                technologies: ["HTML", "CSS", "JavaScript", "PDF.js", "GitHub Pages", "Google Fonts"],
+                features: [
+                    "Dynamic story loading from stories directory",
+                    "Professional UI with gradient backgrounds",
+                    "Built-in PDF viewer with navigation controls",
+                    "Mobile responsive design",
+                    "Easy content updates via JSON configuration",
+                    "Automatic GitHub Pages deployment"
+                ],
+                githubUrl: "https://github.com/sriramrajendran/sensiblestories",
+                demoUrl: "https://lavanyasriram7.github.io/sensiblestories/",
                             }
         ];
     }
