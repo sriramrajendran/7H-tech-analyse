@@ -1,9 +1,33 @@
 // Blog Module - Modular blog content and functionality
 class BlogModule {
     constructor() {
-        // Simple markdown parser for basic markdown features
+        // Configure marked for table support
+        if (typeof marked !== 'undefined') {
+            marked.setOptions({
+                breaks: true,
+                gfm: true, // GitHub Flavored Markdown (includes tables)
+                tables: true,
+                sanitize: false,
+                smartLists: true,
+                smartypants: true
+            });
+        }
+        
+        // Use marked library for reliable markdown parsing
         this.markdownParser = {
             parse: (markdown) => {
+                // Check if marked is available, otherwise fall back to simple parser
+                if (typeof marked !== 'undefined') {
+                    const html = marked.parse(markdown);
+                    // Add table class for styling
+                    return html.replace(/<table>/g, '<table class="markdown-table">');
+                } else {
+                    // Fallback simple parser
+                    return this.simpleMarkdownParse(markdown);
+                }
+            },
+            
+            simpleMarkdownParse: (markdown) => {
                 let html = markdown;
                 
                 // Headers
@@ -113,17 +137,6 @@ class BlogModule {
                 tags: ["microservices", "nodejs", "architecture", "scalability"],
                 contentType: "markdown",
                 markdownFile: "assets/blog/building-scalable-microservices.md"
-            },
-            {
-                id: 6,
-                title: "React Performance Optimization Tips",
-                excerpt: "Essential techniques for optimizing React applications including memoization, code splitting, and bundle size reduction.",
-                category: "Frontend",
-                date: "2026-01-27",
-                readTime: "6 min",
-                tags: ["react", "performance", "optimization", "frontend"],
-                contentType: "markdown",
-                markdownFile: "assets/blog/react-performance-tips.md"
             }
         ];
 
@@ -312,7 +325,7 @@ class BlogModule {
             <div class="blog-container">
                 <header class="blog-header">
                     <h1>Tech Blog</h1>
-                    <p>Insights and tutorials on modern software development</p>
+                    <p>Insights on modern software development</p>
                 </header>
                 
                 ${this.generateFeaturedPost(posts[0])}
@@ -397,7 +410,7 @@ class BlogModule {
             <div class="blog-container">
                 <header class="blog-header">
                     <h1>Tech Blog</h1>
-                    <p>Insights and tutorials on modern software development</p>
+                    <p>Insights on modern software development</p>
                 </header>
                 
                 ${this.generateFeaturedPost(posts[0])}

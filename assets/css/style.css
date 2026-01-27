@@ -1735,9 +1735,7 @@ textarea {
     width: 100%;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    border-radius: var(--radius-xl);
-    border: 1px solid var(--border);
-    background: var(--card-bg);
+    border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
 }
 
@@ -1745,8 +1743,84 @@ textarea {
     width: 100%;
     border-collapse: collapse;
     background: var(--card-bg);
-    border-radius: var(--radius-xl);
+    border-radius: var(--radius-lg);
     overflow: hidden;
+}
+
+/* Markdown Tables */
+.markdown-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: var(--space-4) 0;
+    background: var(--card-bg);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--border);
+}
+
+.markdown-table th,
+.markdown-table td {
+    padding: var(--space-3) var(--space-4);
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+}
+
+.markdown-table th:last-child,
+.markdown-table td:last-child {
+    border-right: none;
+}
+
+.markdown-table th {
+    background: var(--beacon-gradient);
+    color: var(--text-inverse);
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 2px solid var(--accent);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.markdown-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: all var(--transition-fast);
+}
+
+.markdown-table tbody tr:hover {
+    background: var(--bg-secondary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.markdown-table tbody tr:nth-child(even) {
+    background: var(--bg-secondary);
+}
+
+.markdown-table tbody tr:nth-child(even):hover {
+    background: var(--bg-tertiary);
+}
+
+.markdown-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+/* Responsive markdown tables */
+@media (max-width: 768px) {
+    .markdown-table {
+        font-size: 0.8rem;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+    
+    .markdown-table th,
+    .markdown-table td {
+        padding: var(--space-2) var(--space-3);
+        font-size: 0.75rem;
+    }
 }
 
 .stocks-table th,
