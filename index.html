@@ -115,35 +115,35 @@
                 </div>
                 </a>
             <nav class="sidebar-nav">
-                <!-- Technology Section -->
+                <!-- Tech Insights Section -->
                 <div class="nav-section">
-                    <div class="nav-parent" id="nav-technology-parent">
+                    <div class="nav-parent" id="nav-tech-parent">
                         <div class="nav-icon-wrapper">
                             <i data-lucide="cpu" class="nav-icon"></i>
                         </div>
-                        <span class="nav-text">Technology</span>
+                        <span class="nav-text">Tech Insights</span>
                         <div class="nav-arrow">
                             <i data-lucide="chevron-down" class="icon"></i>
                         </div>
                     </div>
-                    <div class="nav-children" id="nav-technology-children">
+                    <div class="nav-children" id="nav-tech-children">
                         <a href="#tech-blog" class="nav-link" id="nav-tech-blog" data-page="tech-blog">
                             <div class="nav-icon-wrapper">
                                 <i data-lucide="pen-tool" class="nav-icon"></i>
                             </div>
-                            <span class="nav-text">Tech Insights</span>
-                        </a>
-                        <a href="#tech-playbooks" class="nav-link" id="nav-tech-playbooks" data-page="tech-playbooks">
-                            <div class="nav-icon-wrapper">
-                                <i data-lucide="book-open" class="nav-icon"></i>
-                            </div>
-                            <span class="nav-text">Playbooks</span>
+                            <span class="nav-text">Articles</span>
                         </a>
                         <a href="#tech-projects" class="nav-link" id="nav-tech-projects" data-page="tech-projects">
                             <div class="nav-icon-wrapper">
                                 <i data-lucide="rocket" class="nav-icon"></i>
                             </div>
                             <span class="nav-text">Projects</span>
+                        </a>
+                        <a href="#tech-playbooks" class="nav-link" id="nav-tech-playbooks" data-page="tech-playbooks">
+                            <div class="nav-icon-wrapper">
+                                <i data-lucide="book-open" class="nav-icon"></i>
+                            </div>
+                            <span class="nav-text">Playbooks</span>
                         </a>
                     </div>
                 </div>
@@ -290,15 +290,16 @@
                             <div class="welcome-content">
                                 <div class="welcome-text">
                                     <h1>Welcome to BeaconOfTech</h1>
-                                    <p class="welcome-description">Discover cutting-edge tech insights and innovation analytics powered by advanced AI. Explore deep technology trends, actionable intelligence, and forward-thinking perspectives shaping the digital future.</p>
+                                    <p class="welcome-description">Where curiosity meets innovation. I'm <strong>Sriram Rajendran</strong>, and this is my digital garden for exploring the cutting edge of technology.</p>
+                                    <p class="welcome-sub-description">From AI breakthroughs to architectural patterns, I document the journey of modern software development and share insights from building scalable systems.</p>
                                     <div class="welcome-actions">
-                                        <button class="btn btn-primary btn-lg" onclick="pageManager.loadPage('portfolio')">
-                                            <i data-lucide="trending-up" class="icon"></i>
-                                            Start Analysis
-                                        </button>
-                                        <button class="btn btn-secondary btn-lg" onclick="pageManager.loadPage('tech-blog')">
+                                        <button class="btn btn-primary btn-lg" onclick="pageManager.loadPage('tech-blog')">
                                             <i data-lucide="book-open" class="icon"></i>
-                                            View Insights
+                                            Read Articles
+                                        </button>
+                                        <button class="btn btn-secondary btn-lg" onclick="pageManager.loadPage('tech-projects')">
+                                            <i data-lucide="rocket" class="icon"></i>
+                                            Explore Projects
                                         </button>
                                     </div>
                                 </div>
@@ -324,40 +325,41 @@
                                 <div class="feature-icon">
                                     <i data-lucide="brain" class="icon"></i>
                                 </div>
-                                <h3>Personal Tech Insights</h3>
-                                <p>Personal perspectives on technology trends, innovations, and digital transformation from Sriram Rajendran's experience.</p>
+                                <h3>AI & Machine Learning</h3>
+                                <p>Deep dives into LLMs, computer vision, and the practical applications of AI in production systems.</p>
                             </article>
                             <article class="feature-card">
                                 <div class="feature-icon">
-                                    <i data-lucide="book-open" class="icon"></i>
+                                    <i data-lucide="code" class="icon"></i>
                                 </div>
-                                <h3>Educational Content</h3>
-                                <p>Knowledge sharing through articles, playbooks, and projects designed for learning and professional development.</p>
+                                <h3>Software Architecture</h3>
+                                <p>Microservices, distributed systems, and cloud-native patterns for building resilient applications.</p>
                             </article>
                             <article class="feature-card">
                                 <div class="feature-icon">
-                                    <i data-lucide="shield" class="icon"></i>
+                                    <i data-lucide="zap" class="icon"></i>
                                 </div>
-                                <h3>Non-Commercial Platform</h3>
-                                <p>Initiative focused on knowledge sharing - no commercial services or professional advice offered.</p>
+                                <h3>Performance Engineering</h3>
+                                <p>Optimization techniques, monitoring strategies, and scaling lessons from high-traffic systems.</p>
                             </article>
                         </section>
                         
-                        <!-- Legal Notice Section -->
-                        <section class="legal-notice-section" aria-labelledby="legal-heading">
-                            <h2 id="legal-heading" class="legal-notice-title">⚠️ Important Legal Notice</h2>
-                            <div class="legal-notice-content">
-                                <div class="legal-notice-item">
-                                    <strong>🚫 Personal Platform:</strong> This is a personal, non-commercial platform by Sriram Rajendran for educational purposes only.
+                        <!-- About Section -->
+                        <section class="about-section" aria-labelledby="about-heading">
+                            <h2 id="about-heading" class="about-title">About BeaconOfTech</h2>
+                            <div class="about-content">
+                                <div class="about-text">
+                                    <p>Personal platform by <strong>Sriram Rajendran</strong> for sharing technology insights, innovation analysis, and educational content.</p>
+                                    <p>Focused on emerging tech trends, AI developments, and digital transformation perspectives from hands-on experience.</p>
                                 </div>
-                                <div class="legal-notice-item">
-                                    <strong>📚 Educational Purpose:</strong> All content is for learning and knowledge sharing. Not a money-making organization.
-                                </div>
-                                <div class="legal-notice-item">
-                                    <strong>⚖️ No Professional Advice:</strong> Content represents personal opinions, not professional or financial advice.
-                                </div>
-                                <div class="legal-notice-item">
-                                    <strong>🆓 Free Access:</strong> No paid services, advertisements, or commercial activities.
+                                <div class="about-focus">
+                                    <h3>Core Focus Areas</h3>
+                                    <ul>
+                                        <li>Technology Innovation & Trends</li>
+                                        <li>AI & Machine Learning Insights</li>
+                                        <li>Digital Transformation Strategies</li>
+                                        <li>Educational Knowledge Sharing</li>
+                                    </ul>
                                 </div>
                             </div>
                         </section>
@@ -372,37 +374,8 @@
                             </div>
                         </div>
                         <div class="footer-legal">
-                            <p>© 2026 BeaconOfTech | Sriram Rajendran | @rajen.sriram</p>
-                            <p class="original-disclaimer">*<strong>Disclaimer:</strong> This platform is for educational and research purposes only. Not offering any financial advices.</p>
-                            <div class="disclaimer-container">
-                                <div class="disclaimer">
-                                    <div class="disclaimer-tooltip">
-                                        ⚠️ Important Notice
-                                        <div class="tooltip-content">
-                                            <strong>⚠️ Important Notice</strong>
-                                            This is a personal, non-commercial platform created by Sriram Rajendran for educational purposes and knowledge sharing only.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="disclaimer">
-                                    <div class="disclaimer-tooltip">
-                                        🚫 Not Financial Advice
-                                        <div class="tooltip-content">
-                                            <strong>🚫 Not Financial Advice</strong>
-                                            All content is for educational and research purposes only. No financial, investment, or professional advice is provided.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="disclaimer">
-                                    <div class="disclaimer-tooltip">
-                                        📚 Purpose
-                                        <div class="tooltip-content">
-                                            <strong>📚 Purpose</strong>
-                                            Established for sharing technology insights. This is not a money-making organization.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                            <p>© 2026 BeaconOfTech | Sriram Rajendran | Personal tech insights platform</p>
+                            <p class="simple-disclaimer">Educational content and personal perspectives on technology</p>
                         </div>
                     </div>
                 </footer>
