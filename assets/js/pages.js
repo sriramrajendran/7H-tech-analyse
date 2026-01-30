@@ -1148,19 +1148,57 @@ class PageManager {
                         breakout_setup: result.recommendation?.breakout_setup || { status: 'none' }
                     });
                 } else {
-                    failedSymbols.push(symbol);
+                    failedSymbols.push({
+                        symbol: symbol,
+                        error: analysisResults[symbol]?.error || 'Unknown error',
+                        errorCode: analysisResults[symbol]?.errorCode || 'UNKNOWN_ERROR'
+                    });
                 }
             }
             
             // Store results for modal display
             window.lastAnalysisResults = results;
             
-            this.displayTableResults(results, failedSymbols, pageType);
+            if (results.length === 0 && failedSymbols.length > 0) {
+                // All symbols failed
+                this.displayError(failedSymbols, pageType);
+            } else {
+                this.displayTableResults(results, failedSymbols, pageType);
+            }
             
         } catch (error) {
             showError('Analysis failed: ' + error.message);
         } finally {
             hideLoading();
+        }
+    }
+    
+    displayError(failedSymbols, pageType) {
+        const tbody = document.getElementById('stocks-tbody');
+        if (!tbody) return;
+        
+        const errorHtml = failedSymbols.map(item => `
+            <tr>
+                <td colspan="16" class="error-cell" style="text-align: center; padding: 20px; color: #dc2626; background: #fef2f2; border-radius: 8px;">
+                    <div style="font-size: 1.1rem; font-weight: 600; margin-bottom: 8px;">
+                        ❌ Data Fetch Failed
+                    </div>
+                    <div style="font-size: 0.9rem; margin-bottom: 4px;">
+                        <strong>${item.symbol}:</strong> ${item.error}
+                    </div>
+                    <div style="font-size: 0.8rem; color: #6b7280;">
+                        Please check the stock symbol and your internet connection, then try again.
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        
+        tbody.innerHTML = errorHtml;
+        
+        // Show the table container
+        const tableContainer = document.getElementById(`${pageType}-table-container`);
+        if (tableContainer) {
+            tableContainer.style.display = 'block';
         }
     }
     

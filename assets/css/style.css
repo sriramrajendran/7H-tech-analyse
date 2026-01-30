@@ -33,8 +33,8 @@
 .about-section {
     background: var(--card-bg);
     border-radius: var(--radius-2xl);
-    padding: var(--space-8);
-    margin-top: var(--space-8);
+    padding: var(--space-6);
+    margin-top: var(--space-6);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
 }
@@ -43,7 +43,7 @@
     font-size: 2rem;
     font-weight: 700;
     color: var(--text);
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-4);
     text-align: center;
     font-family: 'Space Grotesk', sans-serif;
 }
@@ -51,12 +51,12 @@
 .about-content {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-8);
+    gap: var(--space-6);
     align-items: start;
 }
 
 .about-text p {
-    font-size: 1.1rem;
+    font-size: 0.95rem;
     line-height: 1.7;
     color: var(--text);
     margin-bottom: var(--space-4);
@@ -68,7 +68,7 @@
 }
 
 .about-focus h3 {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 600;
     color: var(--text);
     margin-bottom: var(--space-4);
@@ -81,7 +81,7 @@
 }
 
 .about-focus li {
-    font-size: 1rem;
+    font-size: 0.85rem;
     color: var(--text-light);
     margin-bottom: var(--space-3);
     padding-left: var(--space-6);
@@ -98,7 +98,7 @@
 }
 
 .simple-disclaimer {
-    font-size: 0.85rem;
+    font-size: 0.75rem;
     color: var(--text-tertiary);
     margin-top: var(--space-2);
     font-style: italic;
@@ -125,7 +125,7 @@
 
 .results-header {
     text-align: center;
-    margin-bottom: 2rem;
+    margin-bottom: var(--space-4);
     padding-bottom: 1rem;
     border-bottom: 1px solid var(--border);
 }
@@ -751,7 +751,7 @@ a:focus {
 
 body {
     font-family: 'Sora', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 400;
     background: var(--gradient-hero);
     min-height: 100vh;
@@ -764,6 +764,124 @@ body {
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
     font-feature-settings: 'kern' 1, 'liga' 1;
+}
+
+/* Global font size reduction for main content */
+.main-content p,
+.main-content li,
+.main-content span,
+.main-content div:not([class*="header"]):not([class*="footer"]):not([class*="sidebar"]):not([class*="logo"]),
+.card p,
+.card li,
+.card span,
+article p,
+article li,
+article span,
+section p,
+section li,
+section span {
+    font-size: 0.9rem;
+}
+
+/* Reduce font sizes for common content elements */
+.about-text p,
+.about-focus li,
+.about-focus h3,
+.feature-card p,
+.feature-card h3,
+.welcome-description,
+.welcome-sub-description,
+.page-header p,
+.analysis-section p,
+.analysis-section h3,
+.analysis-section h4,
+.project-info p,
+.project-info h3,
+.project-info h4,
+.playbook-info p,
+.tech-card p,
+.tech-card h4,
+.author-content p,
+.skill-category h5,
+.author-title,
+.social-icon,
+.simple-disclaimer,
+.filter-group h4,
+.category-card p,
+.category-card h4,
+.fundamental-data h4,
+.technical-data h4,
+.charts-section h4,
+.overview-item h3,
+.gallery-placeholder,
+.indicator-value,
+.pattern-name,
+.stock-info h4,
+.stock-company,
+.price-value,
+.pattern-description,
+.recommendation-badge,
+.score-badge,
+.detail-section h5,
+.detail-section p,
+.signals-list li,
+.static-info-header h4,
+.static-info-header p,
+.results-header h3,
+.results-subtitle,
+.stock-pattern-details p {
+    font-size: 0.85rem;
+}
+
+/* Override global font reduction for header elements - keep original sizes */
+.header-text h1,
+.header-text .site-title,
+.subtitle,
+.welcome-text h1,
+.welcome-description,
+.welcome-sub-description,
+.feature-card h3,
+.feature-card p,
+.brand-text,
+.brand-subtitle {
+    font-size: revert !important;
+}
+
+.header-text h1,
+.header-text .site-title {
+    font-size: 2rem !important;
+}
+
+.subtitle {
+    font-size: 0.95rem !important;
+}
+
+.welcome-text h1 {
+    font-size: 4rem !important;
+}
+
+.welcome-description {
+    font-size: 1.25rem !important;
+}
+
+.welcome-sub-description {
+    font-size: 1.1rem !important;
+}
+
+.feature-card h3 {
+    font-size: 1.375rem !important;
+}
+
+.feature-card p {
+    font-size: 1rem !important;
+}
+
+.brand-text {
+    font-size: 1rem !important;
+}
+
+.brand-subtitle {
+    font-size: 0.7rem !important;
 }
 
 /* Premium Typography Enhancements */
@@ -779,7 +897,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 h1 {
-    font-size: 3.5rem;
+    font-size: 2.2rem;
     font-weight: 900;
     letter-spacing: -0.06em;
     line-height: 1.1;
@@ -787,7 +905,7 @@ h1 {
 }
 
 h2 {
-    font-size: 2.75rem;
+    font-size: 2.2rem;
     font-weight: 800;
     letter-spacing: -0.045em;
     line-height: 1.15;
@@ -795,28 +913,28 @@ h2 {
 }
 
 h3 {
-    font-size: 2rem;
+    font-size: 1.6rem;
     font-weight: 700;
     letter-spacing: -0.035em;
     line-height: 1.2;
 }
 
 h4 {
-    font-size: 1.5rem;
+    font-size: 1.3rem;
     font-weight: 700;
     letter-spacing: -0.03em;
     line-height: 1.25;
 }
 
 h5 {
-    font-size: 1.25rem;
+    font-size: 1.1rem;
     font-weight: 600;
     letter-spacing: -0.025em;
     line-height: 1.3;
 }
 
 h6 {
-    font-size: 1.125rem;
+    font-size: 1rem;
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.4;
@@ -1343,7 +1461,7 @@ h6 {
 .main-content {
     flex: 1;
     margin-left: 280px;
-    padding: var(--space-8);
+    padding: var(--space-4);
     background: var(--gradient-hero);
     min-height: 100vh;
 }
@@ -1357,8 +1475,8 @@ h6 {
 .premium-header {
     background: var(--card-bg);
     border-radius: var(--radius-3xl);
-    padding: var(--space-8);
-    margin-bottom: var(--space-12);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
     box-shadow: var(--shadow-xl);
     border: 1px solid var(--border);
     position: relative;
@@ -1480,7 +1598,8 @@ h6 {
     to { opacity: 0.2; transform: translate(-50%, -50%) scale(1.1); }
 }
 
-.header-text h1 {
+.header-text h1,
+.header-text .site-title {
     font-size: 2rem;
     font-weight: 800;
     font-family: 'Space Grotesk', sans-serif;
@@ -1589,7 +1708,7 @@ h6 {
 .premium-welcome {
     display: flex;
     flex-direction: column;
-    gap: var(--space-12);
+    gap: var(--space-6);
 }
 
 .welcome-card {
@@ -1920,7 +2039,7 @@ h6 {
 }
 
 .feature-card p {
-    font-size: 0.95rem;
+    font-size: 1rem;
     font-family: 'Sora', sans-serif;
     color: var(--text-light);
     line-height: 1.7;
@@ -1931,8 +2050,8 @@ h6 {
 .premium-footer {
     background: var(--card-bg);
     border-radius: var(--radius-2xl);
-    padding: var(--space-10);
-    margin-top: var(--space-16);
+    padding: var(--space-4);
+    margin-top: var(--space-8);
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--border);
     backdrop-filter: blur(20px);
@@ -2006,7 +2125,7 @@ h6 {
     text-align: center;
     flex: 1;
     min-width: 100%;
-    padding: var(--space-2) 0;
+    padding: var(--space-1) 0;
 }
 
 .footer-legal p {
@@ -2992,7 +3111,8 @@ textarea {
         text-align: left;
     }
     
-    .header-text h1 {
+    .header-text h1,
+    .header-text .site-title {
         font-size: 1.25rem;
         margin-bottom: 0.25rem;
         line-height: 1.2;
@@ -3260,7 +3380,8 @@ textarea {
         margin-bottom: var(--space-3);
     }
     
-    .header-text h1 {
+    .header-text h1,
+    .header-text .site-title {
         font-size: 1.125rem;
     }
     
@@ -3683,14 +3804,10 @@ textarea {
     background: linear-gradient(135deg, var(--primary), var(--secondary));
     color: var(--text-inverse);
     font-weight: 600;
-    font-size: 0.75rem;
-    padding: 12px 10px;
-    position: sticky;
-    top: 0;
-    z-index: 10;
+    padding: 10px 10px;
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
+    overflow: hidden;
 }
 
 .stocks-table thead th {
@@ -3771,9 +3888,9 @@ textarea {
     width: 45px;
     text-align: center;
     min-width: 45px;
-    max-width: 50px;
-    font-size: 0.75rem;
-    padding: 10px 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Recommendation column */
@@ -3782,9 +3899,7 @@ textarea {
     width: 80px;
     text-align: center;
     min-width: 80px;
-    max-width: 90px;
 }
-
 
 /* Score column */
 .stocks-table--screener th:nth-child(16),
@@ -3792,7 +3907,6 @@ textarea {
     width: 50px;
     text-align: center;
     min-width: 50px;
-    max-width: 60px;
 }
 
 /* Row styling */

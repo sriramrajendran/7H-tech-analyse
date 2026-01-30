@@ -26,21 +26,184 @@ class StockAnalyzer {
         try {
             console.log(`Fetching data for ${this.symbol}...`);
             
-            // Since CORS blocks direct API calls and proxies are unreliable,
-            // immediately use mock data for the best user experience
-            console.log('Using mock data for reliable demo experience (CORS restrictions prevent live data)');
+            const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            const isProduction = window.location.hostname.includes('beaconoftech.com');
+            
+            if (isLocalhost) {
+                // Use mock data for localhost development
+                console.log('Using mock data for localhost development');
+                const mockData = this.generateMockData();
+                mockData.chart.result[0].meta.isMockData = true;
+                mockData.chart.result[0].meta.mockDataWarning = 'Using demo data for localhost testing';
+                return this.processData(mockData);
+            }
+            
+            if (isProduction) {
+                // Use CORS workaround for production
+                return await this.fetchWithCORSWorkaround();
+            }
+            
+            // Fallback to mock data for other environments
+            console.log('Using mock data as fallback');
             const mockData = this.generateMockData();
-            
-            // Add a flag to indicate this is mock data
             mockData.chart.result[0].meta.isMockData = true;
-            mockData.chart.result[0].meta.mockDataWarning = 'Using demo data for testing purposes';
-            
+            mockData.chart.result[0].meta.mockDataWarning = 'Using demo data for testing';
             return this.processData(mockData);
             
         } catch (error) {
             console.error(`Error fetching data for ${this.symbol}:`, error);
-            throw new Error(`Failed to fetch data for ${this.symbol}: ${error.message}`);
+            // Fallback to mock data on any error
+            const mockData = this.generateMockData();
+            mockData.chart.result[0].meta.isMockData = true;
+            mockData.chart.result[0].meta.mockDataError = `Live data failed: ${error.message}`;
+            return this.processData(mockData);
         }
+    }
+    
+    async fetchWithCORSWorkaround() {
+        try {
+            // Method 1: Try JSONP approach
+            console.log('Trying JSONP approach for CORS workaround...');
+            const data = await this.tryJSONPApproach();
+            if (data) return this.processData(data);
+            
+            // Method 2: Try CORS proxy services
+            console.log('Trying CORS proxy services...');
+            const data2 = await this.tryCORSProxyServices();
+            if (data2) return this.processData(data2);
+            
+            // Method 3: Try alternative API endpoints
+            console.log('Trying alternative API endpoints...');
+            const data3 = await this.tryAlternativeAPI();
+            if (data3) return this.processData(data3);
+            
+            throw new Error('All CORS workarounds failed');
+            
+        } catch (error) {
+            console.error('CORS workaround failed:', error);
+            throw error;
+        }
+    }
+    
+    async tryJSONPApproach() {
+        return new Promise((resolve) => {
+            const callbackName = `jsonp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+            const script = document.createElement('script');
+            const url = `https://query1.finance.yahoo.com/v8/finance/chart/${this.symbol}?period1=${this.getPeriod1()}&period2=${this.getPeriod2()}&interval=1d&includePrePost=true&callback=${callbackName}`;
+            
+            window[callbackName] = (data) => {
+                document.head.removeChild(script);
+                delete window[callbackName];
+                resolve(data);
+            };
+            
+            script.onerror = () => {
+                document.head.removeChild(script);
+                delete window[callbackName];
+                resolve(null);
+            };
+            
+            script.src = url;
+            document.head.appendChild(script);
+            
+            // Timeout after 10 seconds
+            setTimeout(() => {
+                if (window[callbackName]) {
+                    document.head.removeChild(script);
+                    delete window[callbackName];
+                    resolve(null);
+                }
+            }, 10000);
+        });
+    }
+    
+    async tryCORSProxyServices() {
+        const proxies = [
+            'https://api.allorigins.win/raw?url=',
+            'https://corsproxy.io/?',
+            'https://cors-anywhere.herokuapp.com/'
+        ];
+        
+        const yahooUrl = `https://query1.finance.yahoo.com/v8/finance/chart/${this.symbol}?period1=${this.getPeriod1()}&period2=${this.getPeriod2()}&interval=1d&includePrePost=true`;
+        
+        for (const proxy of proxies) {
+            try {
+                console.log(`Trying proxy: ${proxy}`);
+                const response = await fetch(proxy + encodeURIComponent(yahooUrl), {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.chart && data.chart.result && data.chart.result[0]) {
+                        console.log(`Success with proxy: ${proxy}`);
+                        return data;
+                    }
+                }
+            } catch (error) {
+                console.log(`Proxy ${proxy} failed:`, error.message);
+            }
+        }
+        
+        return null;
+    }
+    
+    async tryAlternativeAPI() {
+        // Try using a different Yahoo Finance endpoint or service
+        try {
+            const response = await fetch(`https://yfapi.net/v8/finance/chart/${this.symbol}?period1=${this.getPeriod1()}&period2=${this.getPeriod2()}&interval=1d&includePrePost=true`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                    'X-API-KEY': 'demo' // Demo key for testing
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data.chart && data.chart.result && data.chart.result[0]) {
+                    return data;
+                }
+            }
+        } catch (error) {
+            console.log('Alternative API failed:', error.message);
+        }
+        
+        return null;
+    }
+    
+    getPeriod1() {
+        const now = new Date();
+        switch(this.period) {
+            case '1mo':
+                now.setMonth(now.getMonth() - 1);
+                break;
+            case '3mo':
+                now.setMonth(now.getMonth() - 3);
+                break;
+            case '6mo':
+                now.setMonth(now.getMonth() - 6);
+                break;
+            case '1y':
+                now.setFullYear(now.getFullYear() - 1);
+                break;
+            case '2y':
+                now.setFullYear(now.getFullYear() - 2);
+                break;
+            case '5y':
+                now.setFullYear(now.getFullYear() - 5);
+                break;
+        }
+        return now.toISOString().split('T')[0];
+    }
+    
+    getPeriod2() {
+        return new Date().toISOString().split('T')[0];
     }
     
     async tryDirectAPI() {
@@ -139,7 +302,25 @@ class StockAnalyzer {
     }
     
     generateMockData() {
-        const basePrice = 100 + Math.random() * 900; // Random price between $100-$1000
+        // Generate sample data clearly marked as mock data
+        const samplePrices = {
+            'TSLA': 155.71,
+            'COF': 759.73,
+            'AAPL': 767.88,
+            'MSFT': 549.27,
+            'GOOGL': 891.84,
+            'AMZN': 178.35,
+            'META': 485.23,
+            'NVDA': 875.28,
+            'BRK.A': 542780.00,
+            'JPM': 198.45,
+            'V': 278.92,
+            'JNJ': 156.78,
+            'WMT': 165.23
+        };
+        
+        // Use sample price if available, otherwise generate random
+        const basePrice = samplePrices[this.symbol] || (100 + Math.random() * 900);
         const days = this.period === '1mo' ? 30 : this.period === '3mo' ? 90 : this.period === '6mo' ? 180 : 365;
         
         const timestamps = [];
@@ -1268,10 +1449,16 @@ class BatchStockAnalyzer {
                         recommendation
                     };
                 } else {
-                    results[symbol] = { error: 'Failed to fetch data' };
+                    results[symbol] = { 
+                        error: `Failed to fetch real data for ${symbol}. Please check the stock symbol and try again.`,
+                        errorCode: 'DATA_FETCH_FAILED'
+                    };
                 }
             } catch (error) {
-                results[symbol] = { error: error.message };
+                results[symbol] = { 
+                    error: `Error fetching data for ${symbol}: ${error.message}`,
+                    errorCode: 'DATA_FETCH_ERROR'
+                };
             }
             
             // Small delay to avoid rate limiting

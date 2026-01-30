@@ -276,9 +276,13 @@ class BlogModule {
         // If it's a markdown post with a markdownFile, load and parse it
         if (post.contentType === 'markdown' && post.markdownFile) {
             content = await this.loadMarkdownFile(post.markdownFile);
+            // Remove the first H1 header from markdown content to avoid duplication
+            content = content.replace(/^<h1[^>]*>.*?<\/h1>/i, '');
         } else if (post.contentType === 'markdown' && !post.markdownFile) {
             // Parse inline markdown content
             content = this.markdownParser.parse(post.content);
+            // Remove the first H1 header from markdown content to avoid duplication
+            content = content.replace(/^<h1[^>]*>.*?<\/h1>/i, '');
         }
         
         const mainContent = document.getElementById('main-content');

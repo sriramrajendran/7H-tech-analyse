@@ -89,7 +89,7 @@ body {
 .main-content {
     flex: 1;
     margin-left: 280px;
-    padding: var(--space-8);
+    padding: var(--space-4);
     background: var(--gradient-hero);
     min-height: 100vh;
 }
@@ -103,8 +103,8 @@ body {
 .premium-header {
     background: var(--bg);
     border-radius: 1rem;
-    padding: var(--space-8);
-    margin-bottom: var(--space-8);
+    padding: var(--space-4);
+    margin-bottom: var(--space-3);
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04);
     border: 1px solid var(--border);
 }

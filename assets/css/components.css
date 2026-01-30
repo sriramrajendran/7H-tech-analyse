@@ -626,7 +626,7 @@
 
 .blog-header {
     text-align: center;
-    margin-bottom: var(--space-12);
+    margin-bottom: var(--space-6);
 }
 
 .blog-header h1 {
@@ -647,8 +647,8 @@
 .featured-post {
     background: var(--gradient-card);
     border-radius: var(--radius-3xl);
-    padding: var(--space-8);
-    margin-bottom: var(--space-12);
+    padding: var(--space-6);
+    margin-bottom: var(--space-8);
     border: 1px solid var(--border);
     box-shadow: var(--shadow-lg);
 }
