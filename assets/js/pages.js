@@ -574,7 +574,17 @@ class PageManager {
                         </tr>
                     </thead>
                     <tbody id="stocks-tbody">
-                        <tr><td colspan="16" class="loading-cell">Click "Analyze" to load stock data...</td></tr>
+                        <tr><td colspan="16" class="loading-cell">
+                            <div class="universal-loading-container">
+                                <div class="universal-loading-spinner"></div>
+                                <div class="universal-loading-text">
+                                    <h3>Ready to analyze portfolio</h3>
+                                    <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                                        Click "Analyze" to start analyzing your portfolio stocks
+                                    </p>
+                                </div>
+                            </div>
+                        </td></tr>
                     </tbody>
                 </table>
                 </div>
@@ -661,7 +671,17 @@ class PageManager {
                         </tr>
                     </thead>
                     <tbody id="stocks-tbody">
-                        <tr><td colspan="16" class="loading-cell">Click "Analyze Watchlist" to load data...</td></tr>
+                        <tr><td colspan="16" class="loading-cell">
+                            <div class="universal-loading-container">
+                                <div class="universal-loading-spinner"></div>
+                                <div class="universal-loading-text">
+                                    <h3>Ready to analyze watchlist</h3>
+                                    <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                                        Click "Analyze Watchlist" to start analyzing your watchlist stocks
+                                    </p>
+                                </div>
+                            </div>
+                        </td></tr>
                     </tbody>
                 </table>
                 </div>
@@ -748,7 +768,17 @@ class PageManager {
                         </tr>
                     </thead>
                     <tbody id="stocks-tbody">
-                        <tr><td colspan="16" class="loading-cell">Click "Screen Stocks" to load data...</td></tr>
+                        <tr><td colspan="16" class="loading-cell">
+                            <div class="universal-loading-container">
+                                <div class="universal-loading-spinner"></div>
+                                <div class="universal-loading-text">
+                                    <h3>Ready to analyze stocks</h3>
+                                    <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                                        Click "Screen Stocks" to start analyzing market data with advanced technical indicators
+                                    </p>
+                                </div>
+                            </div>
+                        </td></tr>
                     </tbody>
                 </table>
                 </div>
@@ -847,7 +877,17 @@ class PageManager {
                         </tr>
                     </thead>
                     <tbody id="stocks-tbody">
-                        <tr><td colspan="16" class="loading-cell">Click "Analyze US Stocks" to load data...</td></tr>
+                        <tr><td colspan="16" class="loading-cell">
+                            <div class="universal-loading-container">
+                                <div class="universal-loading-spinner"></div>
+                                <div class="universal-loading-text">
+                                    <h3>Ready to analyze US stocks</h3>
+                                    <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                                        Click "Analyze US Stocks" to start analyzing major US stocks
+                                    </p>
+                                </div>
+                            </div>
+                        </td></tr>
                     </tbody>
                 </table>
                 </div>
@@ -929,7 +969,17 @@ class PageManager {
                         </tr>
                     </thead>
                     <tbody id="stocks-tbody">
-                        <tr><td colspan="16" class="loading-cell">Click "Analyze ETFs" to load data...</td></tr>
+                        <tr><td colspan="16" class="loading-cell">
+                            <div class="universal-loading-container">
+                                <div class="universal-loading-spinner"></div>
+                                <div class="universal-loading-text">
+                                    <h3>Ready to analyze ETFs</h3>
+                                    <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                                        Click "Analyze ETFs" to start analyzing exchange-traded funds
+                                    </p>
+                                </div>
+                            </div>
+                        </td></tr>
                     </tbody>
                 </table>
                 </div>
@@ -1026,7 +1076,17 @@ class PageManager {
                         </tr>
                     </thead>
                     <tbody id="stocks-tbody">
-                        <tr><td colspan="16" class="loading-cell">Click "Analyze Cryptocurrencies" to load data...</td></tr>
+                        <tr><td colspan="16" class="loading-cell">
+                            <div class="universal-loading-container">
+                                <div class="universal-loading-spinner"></div>
+                                <div class="universal-loading-text">
+                                    <h3>Ready to analyze cryptocurrencies</h3>
+                                    <p style="color: var(--text-secondary); margin: 0.5rem 0 0 0; font-size: 0.875rem;">
+                                        Click "Analyze Cryptocurrencies" to start analyzing crypto markets
+                                    </p>
+                                </div>
+                            </div>
+                        </td></tr>
                     </tbody>
                 </table>
                 </div>
@@ -1116,7 +1176,11 @@ class PageManager {
     
     
     async analyzeStocks(symbols, period, topN, pageType) {
-        showLoading();
+        // Don't show main page loading - we'll show table loading instead
+        // showLoading('Analyzing stocks...');
+        
+        // Show enhanced loading state in table
+        this.showUniversalTableLoading(symbols, pageType);
         
         try {
             const batchAnalyzer = new BatchStockAnalyzer(symbols, period);
@@ -1167,13 +1231,19 @@ class PageManager {
             }
             
         } catch (error) {
+            // Clear loading animation on error
+            this.clearUniversalLoadingAnimation();
+            // hideLoading(); // Not needed since we're not using main page loading
             showError('Analysis failed: ' + error.message);
         } finally {
-            hideLoading();
+            // hideLoading(); // Not needed since we're not using main page loading
         }
     }
     
     displayError(failedSymbols, pageType) {
+        // Clear loading animation
+        this.clearUniversalLoadingAnimation();
+        
         const tbody = document.getElementById('stocks-tbody');
         if (!tbody) return;
         
@@ -1202,7 +1272,194 @@ class PageManager {
         }
     }
     
+    // Universal loading methods for all tables
+    showUniversalTableLoading(symbols, pageType) {
+        // Try to find the appropriate table body based on page type
+        let tbody = null;
+        const possibleIds = ['stocks-tbody', `${pageType}-tbody`, 'results-tbody'];
+        
+        for (const id of possibleIds) {
+            tbody = document.getElementById(id);
+            if (tbody) break;
+        }
+        
+        // If no table body found, try to find any table body in the visible container
+        if (!tbody) {
+            const container = document.getElementById(`${pageType}-table-container`) || 
+                           document.querySelector('.table-container:not([style*="display: none"])');
+            if (container) {
+                tbody = container.querySelector('tbody');
+            }
+        }
+        
+        if (!tbody) return;
+        
+        // Store reference for cleanup
+        this._currentLoadingTbody = tbody;
+        
+        // Create enhanced loading row with progress animation
+        tbody.innerHTML = `
+            <tr class="universal-loading-row">
+                <td colspan="16" class="loading-cell" style="text-align: center; padding: 2rem;">
+                    <div class="universal-loading-container">
+                        <div class="universal-loading-spinner"></div>
+                        <div class="universal-loading-text">
+                            <h3>Analyzing ${symbols.length} stocks...</h3>
+                            <div class="universal-progress-container">
+                                <div class="universal-progress-bar">
+                                    <div class="universal-progress-fill"></div>
+                                </div>
+                                <span class="universal-progress-text">0%</span>
+                            </div>
+                            <div class="universal-stock-progress">
+                                <div class="universal-current-stock">Preparing analysis...</div>
+                                <div class="universal-processed-count">0 of ${symbols.length} stocks processed</div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `;
+        
+        // Add universal loading styles if not already present
+        this.addUniversalLoadingStyles();
+        
+        // Start progress animation
+        this.animateUniversalLoadingProgress(symbols);
+    }
+    
+    addUniversalLoadingStyles() {
+        if (document.getElementById('universal-loading-styles')) return;
+        
+        const styles = document.createElement('style');
+        styles.id = 'universal-loading-styles';
+        styles.textContent = `
+            .universal-loading-container {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .universal-loading-spinner {
+                width: 40px;
+                height: 40px;
+                border: 3px solid #f3f4f6;
+                border-top: 3px solid var(--accent);
+                border-radius: 50%;
+                animation: universal-spin 1s linear infinite;
+            }
+            
+            @keyframes universal-spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .universal-loading-text h3 {
+                margin: 0;
+                color: var(--text-primary);
+                font-size: 1.1rem;
+                font-weight: 600;
+            }
+            
+            .universal-progress-container {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .universal-progress-bar {
+                flex: 1;
+                height: 6px;
+                background: #f3f4f6;
+                border-radius: 3px;
+                overflow: hidden;
+            }
+            
+            .universal-progress-fill {
+                height: 100%;
+                background: linear-gradient(90deg, var(--primary), var(--accent));
+                border-radius: 3px;
+                width: 0%;
+                transition: width 0.3s ease;
+            }
+            
+            .universal-progress-text {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                font-weight: 600;
+                min-width: 35px;
+            }
+            
+            .universal-stock-progress {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 0.25rem;
+                font-size: 0.875rem;
+            }
+            
+            .universal-current-stock {
+                color: var(--primary);
+                font-weight: 500;
+                min-height: 1.2rem;
+            }
+            
+            .universal-processed-count {
+                color: var(--text-secondary);
+            }
+            
+            .universal-loading-row {
+                background: linear-gradient(135deg, rgba(37, 99, 235, 0.02) 0%, rgba(124, 58, 237, 0.02) 100%);
+            }
+        `;
+        document.head.appendChild(styles);
+    }
+    
+    animateUniversalLoadingProgress(symbols) {
+        let currentProgress = 0;
+        const progressFill = document.querySelector('.universal-progress-fill');
+        const progressText = document.querySelector('.universal-progress-text');
+        const currentStockEl = document.querySelector('.universal-current-stock');
+        const processedCountEl = document.querySelector('.universal-processed-count');
+        
+        if (!progressFill || !progressText) return;
+        
+        // Simulate progress updates
+        this._universalLoadingInterval = setInterval(() => {
+            const increment = Math.random() * 15 + 5; // 5-20% increments
+            currentProgress = Math.min(currentProgress + increment, 95); // Cap at 95% until complete
+            
+            progressFill.style.width = currentProgress + '%';
+            progressText.textContent = Math.round(currentProgress) + '%';
+            
+            // Update current stock being processed
+            const stockIndex = Math.min(Math.floor((currentProgress / 100) * symbols.length), symbols.length - 1);
+            if (currentStockEl && symbols[stockIndex]) {
+                currentStockEl.textContent = `Analyzing ${symbols[stockIndex]}...`;
+            }
+            
+            if (processedCountEl) {
+                const processed = Math.floor((currentProgress / 100) * symbols.length);
+                processedCountEl.textContent = `${processed} of ${symbols.length} stocks processed`;
+            }
+        }, 300);
+    }
+    
+    clearUniversalLoadingAnimation() {
+        if (this._universalLoadingInterval) {
+            clearInterval(this._universalLoadingInterval);
+            this._universalLoadingInterval = null;
+        }
+        this._currentLoadingTbody = null;
+    }
+    
     displayTableResults(results, failedSymbols, pageType) {
+        // Clear loading animation
+        this.clearUniversalLoadingAnimation();
+        
         const tbody = document.getElementById('stocks-tbody');
         if (!tbody) return;
         

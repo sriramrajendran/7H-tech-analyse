@@ -508,12 +508,18 @@ function showLoading(message = 'Analyzing market data...') {
     }
 }
 
+// Preserve original showLoading for micro-interactions compatibility
+window.originalShowLoading = showLoading;
+
 function hideLoading() {
     const loading = document.getElementById('loading');
     if (loading) {
         loading.classList.add('hidden');
     }
 }
+
+// Preserve original hideLoading for micro-interactions compatibility
+window.originalHideLoading = hideLoading;
 
 // Enhanced error display with premium styling
 function showError(message, container = null) {
@@ -809,54 +815,18 @@ class MarketDataService {
 
     fetchSP500Data() {
         return new Promise((resolve) => {
-            // Check if API key is available in environment variables
-            const apiKey = process?.env?.POLYGON_API_KEY || window.POLYGON_API_KEY;
+            // Use mock data for browser environment
+            const mockData = {
+                price: '4,512.58',
+                change: '+1.24',
+                isPositive: true
+            };
             
-            if (apiKey && apiKey !== 'YOUR_API_KEY') {
-                // Use real API if key is available
-                fetch(`https://api.polygon.io/v2/aggs/ticker/SPY/prev?adjusted=true&apiKey=${apiKey}`)
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Failed to fetch market data');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        if (data.results && data.results.length > 0) {
-                            const result = data.results[0];
-                            const price = result.c; // Close price
-                            const change = ((result.c - result.o) / result.o * 100).toFixed(2);
-                            const changeValue = (result.c - result.o).toFixed(2);
-                            
-                            resolve({
-                                price: price.toFixed(2),
-                                change: change,
-                                changeValue: changeValue,
-                                isPositive: change >= 0
-                            });
-                        }
-                    })
-                    .catch(error => {
-                        console.log('API call failed, using mock data for S&P 500');
-                        this.useMockData(resolve);
-                    });
-            } else {
-                // Use mock data if no API key is configured
-                console.log('No API key configured, using mock data for S&P 500');
-                this.useMockData(resolve);
-            }
+            // Simulate API delay
+            setTimeout(() => {
+                resolve(mockData);
+            }, 100);
         });
-    }
-
-    useMockData(resolve) {
-        // Return realistic mock data
-        const mockData = {
-            price: '4,783.45',
-            change: '+0.82',
-            changeValue: '+38.94',
-            isPositive: true
-        };
-        resolve(mockData);
     }
 
     updateMarketDisplay(data) {
@@ -923,22 +893,6 @@ class MarketDataService {
 
 // Initialize market data service
 const marketDataService = new MarketDataService();
-
-// Loading functions
-function showLoading(message = 'Analyzing market data...') {
-    const loading = document.getElementById('loading');
-    if (loading) {
-        loading.classList.remove('hidden');
-        loading.querySelector('p').textContent = message;
-    }
-}
-
-function hideLoading() {
-    const loading = document.getElementById('loading');
-    if (loading) {
-        loading.classList.add('hidden');
-    }
-}
 
 // Error display
 function showError(message, container = null) {

@@ -161,10 +161,21 @@ class MicroInteractions {
         };
 
         // Example usage for dynamic content loading
-        window.showLoading = (element) => {
-            if (element) {
-                addShimmer(element);
+        window.showLoading = (elementOrMessage) => {
+            // Check if it's a string message (from main-github.js showLoading)
+            if (typeof elementOrMessage === 'string') {
+                // Call the original showLoading from main-github.js if it exists
+                if (window.originalShowLoading) {
+                    window.originalShowLoading(elementOrMessage);
+                } else {
+                    // Fallback: show global loading
+                    showGlobalLoading();
+                }
+            } else if (elementOrMessage) {
+                // It's an element, add shimmer effect
+                addShimmer(elementOrMessage);
             } else {
+                // No parameter, show global loading
                 showGlobalLoading();
             }
         };
@@ -173,7 +184,13 @@ class MicroInteractions {
             if (element) {
                 removeShimmer(element);
             } else {
-                hideGlobalLoading();
+                // Try to call original hideLoading from main-github.js if it exists
+                if (window.originalHideLoading) {
+                    window.originalHideLoading();
+                } else {
+                    // Fallback: hide global loading shimmer
+                    hideGlobalLoading();
+                }
             }
         };
     }
