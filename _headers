@@ -13,7 +13,3 @@
 # Cache HTML files
 /*.html
   Cache-Control: public, max-age=86400
-
-# Enable Brotli compression
-/*
-  Content-Encoding: br
