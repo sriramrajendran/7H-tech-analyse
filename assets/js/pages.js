@@ -10,6 +10,13 @@ class PageManager {
         // Initialize modular components
         this.initializeModules();
         
+        // Load configuration asynchronously
+        this.initializeConfig();
+    }
+    
+    async initializeConfig() {
+        await this.loadConfig();
+        console.log('PageManager: Configuration loaded and initialized');
     }
 
     initializeModules() {
