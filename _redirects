@@ -1,2 +1,5 @@
-# Handle SPA routing - redirect all routes to index.html
-/*    /index.html   200
+# Static site routing - only handle specific routes
+/blog/*    /index.html   200
+/playbooks/*    /index.html   200
+/projects/*    /index.html   200
+/about    /index.html   200
